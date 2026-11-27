@@ -139,66 +139,6 @@ const SKIN = [["e", [0, 1.625, 0.0], [0.1, 0.125, 0.115]], ["c", [0, 1.46, -0.01
   ...MP(["c", [0.1, 0.9, 0], [0.11, 0.48, 0.01], 0.07]), ...MP(["c", [0.11, 0.48, 0.01], [0.11, 0.08, 0], 0.048]), ...MP(["b", [0.11, 0.03, 0.04], [0.06, 0.04, 0.15]])];
 
 // ---------- Visualizadores (3D e 2D com a mesma interface) ----------
-function anatPartMesh(p, color, o) {
-  if (p[0] === "e") return mEll(p[1], p[2], color, Object.assign({ r: p[3] }, o));
-  if (p[0] === "b") return mBox(p[1], p[2], color, Object.assign({ r: p[3] }, o));
-  if (p[0] === "c") return mCyl(p[1], p[2], p[3], color, o);
-  if (p[3]) { // tubo segmentado (vértebras)
-    const g = new THREE.Group();
-    const curve = new THREE.CatmullRomCurve3(p[1].map(V3));
-    const n = 26;
-    for (let i = 0; i < n; i++) {
-      const a = curve.getPoint(i / n), b = curve.getPoint((i + 0.7) / n);
-      g.add(mCyl(a.toArray(), b.toArray(), p[2], color, o));
-    }
-    return g;
-  }
-  return mTube(p[1], p[2], color, o);
-}
-async function anatView3D(el, opts) {
-  await loadThree();
-  const v = createViewer(el, { mode: "orbit", target: [0, 1.0, 0], dist: 2.3, minDist: 0.25, maxDist: 4, bg: "#0d1526" });
-  LABV = v;
-  const groups = {};
-  ANAT.forEach((a) => {
-    const g = new THREE.Group();
-    const col = a.color || ANAT_SYS[a.sys[0]].c;
-    a.parts.forEach((p) => g.add(anatPartMesh(p, col, { rough: 0.55, opacity: a.sys[0] === "muscular" ? 0.92 : 1 })));
-    v.add(g, a.id);
-    groups[a.id] = g;
-  });
-  const skin = new THREE.Group();
-  SKIN.forEach((p) => skin.add(anatPartMesh(p, "#f1c7a5", { opacity: 0.12, rough: 0.9, emissive: 0x3a2418 })));
-  skin.traverse((m) => { if (m.material) m.material.depthWrite = false; });
-  v.add(skin);
-  const markers = {};
-  let labelsOn = false, labelMap = {};
-  const api = {
-    kind: "3d",
-    setVisible(id, b) { groups[id].visible = b; v.refresh(); },
-    glow(id, color) { setGlow(groups[id], color === null ? null : color); v.refresh(); },
-    ghost(id, b) { setOpacity(groups[id], b ? 0.12 : null); v.refresh(); },
-    skin(op) { skin.visible = op > 0.01; skin.traverse((m) => { if (m.material) m.material.opacity = op; }); v.refresh(); },
-    muscleOp(op) { ANAT.filter((a) => a.sys[0] === "muscular").forEach((a) => setOpacity(groups[a.id], op)); v.refresh(); },
-    focus(id) { const c = anatCenter(anatById(id)); v.setTarget([c[0], c[1], c[2]], 0.9); },
-    unfocus() { v.setTarget([0, 1.0, 0], 2.3); },
-    onPick(cb) { v.onPick((h) => cb(h ? h.id : null)); },
-    onHover(cb) { v.onHover(cb); },
-    labels(on, ids) {
-      v.clearLabels(); labelMap = {}; labelsOn = on;
-      if (on) (ids || []).forEach((id) => { const a = anatById(id); labelMap[id] = v.addLabel(a.n, anatCenter(a)); });
-    },
-    addMarker(key, pos, num) {
-      const m = mEll(pos, [0.018, 0.018, 0.018], "#22d3ee", { opacity: 0.85, emissive: 0x0e7490 });
-      v.add(m, "mk:" + key); markers[key] = { m, L: v.addLabel(String(num), pos, "num") };
-      v.animate((t) => { if (!markers[key]) return false; const s = 0.018 * (1 + 0.15 * Math.sin(t / 250)); m.scale.set(s, s, s); });
-    },
-    removeMarker(key) { const k = markers[key]; if (!k) return; k.m.visible = false; v.scene.remove(k.m); k.L.el.remove(); delete markers[key]; v.refresh(); },
-    pulse(id) { let on = true; const fn = (t) => { if (!api._pulse || api._pulse !== fn) return false; setGlow(groups[id], 0xfacc15, 0.35 + 0.35 * Math.sin(t / 180)); }; api._pulse = fn; v.animate(fn); },
-    stopPulse(id) { api._pulse = null; if (id) setGlow(groups[id], null); v.refresh(); }
-  };
-  return api;
-}
 function anatView2D(el) {
   const W = 0.9, H = 1.85;
   el.insertAdjacentHTML("afterbegin", `<svg class="anat2d" viewBox="-0.45 -0.02 ${W} ${H}" preserveAspectRatio="xMidYMid meet"></svg>`);
@@ -277,54 +217,6 @@ function anatSystemsOn(set) {
     AN.view.setVisible(a.id, sexOk && a.sys.some((s) => set.has(s)) && !(AN.isolated && AN.isolated !== a.id) && !(AN.hidden && AN.hidden.has(a.id)));
   });
 }
-async function anatLaunch(diff, sub) {
-  const sim = labSim("anat3d");
-  const SUBN = { estudo: "Estudo livre", localize: "Localize a estrutura", qual: "Qual é essa estrutura?", monte: "Monte o sistema", desafio: "Desafio anatômico" };
-  labBegin(sim, diff, { sub, subLabel: SUBN[sub], objective: { estudo: "Explore os sistemas, camadas e estruturas.", localize: "Encontre no modelo a estrutura pedida.", qual: "Identifique a estrutura destacada.", monte: "Coloque cada estrutura na posição correta.", desafio: "Cumpra o máximo de missões antes do tempo acabar." }[sub],
-    help: `<ul class="list"><li>Arraste para girar o corpo; use pinça ou a roda do mouse para aproximar.</li><li>Use ⤒ ⤓ para subir ou descer a câmera e ◎ para recentralizar.</li><li>No painel, ligue e desligue sistemas e ajuste as camadas (pele e músculos).</li><li>${sub === "estudo" ? "Toque numa estrutura para ver nome, função e relevância clínica." : "Toque na estrutura para responder. Erros tiram pontos."}</li></ul>` });
-  AN = { sub, diff, sex: "f", sys: new Set(["esqueletico", "cardiovascular", "respiratorio", "digestorio", "nervoso", "urinario", "endocrino", "linfatico", "reprodutor"]), isolated: null, hidden: null, explored: new Set(), score: 0, round: 0, correct: 0, total: 0, mistakes: [], good: [], evalMode: sub !== "estudo" };
-  $app.innerHTML = labSceneShell({ title: `Anatomia 3D · ${SUBN[sub]}`, objective: LABCTX.objective, progress: 0, score: sub === "estudo" ? undefined : 0, timer: sub === "desafio" ? "down" : "up", left: 0,
-    camExtra: `<button onclick="LABV&&LABV.panY(0.12)" aria-label="Subir câmera">▲</button><button onclick="LABV&&LABV.panY(-0.12)" aria-label="Descer câmera">▼</button>${use2D() ? `<button onclick="AN.view.flip&&AN.view.flip()" aria-label="Virar">↺ frente/costas</button>` : ""}`, noCam: use2D() });
-  const el = document.getElementById("lab-view");
-  AN.view = use2D() ? anatView2D(el) : await anatView3D(el);
-  if (use2D()) el.querySelector(".cam-ctrl") && el.querySelector(".cam-ctrl").remove();
-  AN.view.onPick((id) => anatPick(id));
-  AN.view.onHover((id) => { if (AN.sub === "estudo" && !AN.evalMode) { const h = document.getElementById("an-hover"); if (h) h.textContent = id && anatById(id) ? anatById(id).n : ""; } });
-  anatSystemsOn(AN.sys);
-  if (sub === "estudo") anatStudyPanel();
-  else if (sub === "monte") anatMonteStart();
-  else if (sub === "desafio") { AN.endAt = Date.now() + { ini: 120, int: 100, adv: 80 }[diff] * 1000; anatNextRound(); LABT.push(setInterval(() => { if (LABCTX && !LABCTX.pausedAt) { const left = AN.endAt - Date.now(); labTickHud(left); if (left <= 0) anatEnd(); } }, 250)); LABCTX.onResume = () => { AN.endAt += Date.now() - (LABCTX._pz || Date.now()); }; LABCTX.onPause = () => { LABCTX._pz = Date.now(); }; }
-  else anatNextRound();
-  if (sub !== "desafio") LABT.push(setInterval(() => labTickHud(), 1000));
-}
-
-// Estudo livre
-function anatStudyPanel(sel) {
-  const a = sel && anatById(sel);
-  const counts = {};
-  ANAT.forEach((x) => x.sys.forEach((s) => (counts[s] = (counts[s] || 0) + 1)));
-  setSide(`
-    <div class="side-sec"><b>Sistemas</b><div class="filter-chips">${Object.entries(ANAT_SYS).map(([k, s]) => `<button class="fchip sys ${AN.sys.has(k) ? "on" : ""}" style="--sc:${s.c}" onclick="anatToggleSys('${k}')">${esc(s.n)} <small>${counts[k]}</small></button>`).join("")}</div>
-      <div class="row wrap"><button class="btn ghost small-btn" onclick="anatAll(true)">Ligar todos</button><button class="btn ghost small-btn" onclick="anatAll(false)">Desligar todos</button></div></div>
-    <div class="side-sec"><b>Camadas</b>
-      <label class="rng">Pele <input type="range" min="0" max="80" value="${Math.round((AN.skinOp ?? 0.12) * 100)}" oninput="AN.skinOp=this.value/100;AN.view.skin(AN.skinOp)"></label>
-      <label class="rng">Músculos <input type="range" min="10" max="100" value="${Math.round((AN.musOp ?? 0.92) * 100)}" oninput="AN.musOp=this.value/100;AN.view.muscleOp(AN.musOp)"></label>
-      <div class="row wrap"><button class="btn ghost small-btn" onclick="AN.sex=AN.sex==='f'?'m':'f';anatSystemsOn(AN.sys);anatStudyPanel()">Modelo: ${AN.sex === "f" ? "feminino" : "masculino"} ⇄</button>
-      <label class="switch-row inline"><span>Modo avaliação (sem nomes)</span><input type="checkbox" ${AN.evalMode ? "checked" : ""} onchange="AN.evalMode=this.checked;anatStudyPanel(AN.sel)"></label></div></div>
-    <div class="side-sec info-card">
-      ${a ? (AN.evalMode && !AN.revealed ? `<b>Estrutura selecionada</b><p class="muted-txt">Modo avaliação: tente dizer o nome antes de revelar.</p><button class="btn accent block" onclick="AN.revealed=true;anatStudyPanel(AN.sel)">Revelar</button>` :
-        `<span class="tag" style="color:${ANAT_SYS[a.sys[0]].c}">${a.sys.map((s) => ANAT_SYS[s].n).join(" · ")}</span><h3>${esc(a.n)}</h3><p>${esc(a.info)}</p><p><b>Função:</b> ${esc(a.fn)}.</p><p><b>Na clínica:</b> ${esc(a.clin)}.</p>`) +
-        `<div class="row wrap"><button class="btn ghost small-btn" onclick="anatIsolate('${a.id}')">${AN.isolated ? "Mostrar todos" : "Isolar"}</button><button class="btn ghost small-btn" onclick="AN.view.focus('${a.id}')">Aproximar</button></div>`
-      : `<b>Toque numa estrutura</b><p class="muted-txt">Você verá o nome, a função e a relevância clínica. <span id="an-hover"></span></p>`}
-    </div>
-    <div class="side-sec"><small>Estruturas exploradas: <b>${AN.explored.size}</b> de ${ANAT.length}</small><div class="bar small"><span style="width:${Math.round((AN.explored.size / ANAT.length) * 100)}%"></span></div>
-      <button class="btn primary block" onclick="anatEndStudy()">Concluir estudo</button></div>
-    <p class="muted-txt small">Modelo esquemático educacional (posições e proporções aproximadas). Não substitui atlas, peças anatômicas e aulas práticas.</p>`);
-  setProgress(AN.explored.size / ANAT.length);
-}
-function anatToggleSys(k) { AN.sys.has(k) ? AN.sys.delete(k) : AN.sys.add(k); anatSystemsOn(AN.sys); anatStudyPanel(AN.sel); }
-function anatAll(on) { AN.sys = new Set(on ? Object.keys(ANAT_SYS) : []); anatSystemsOn(AN.sys); anatStudyPanel(AN.sel); }
-function anatIsolate(id) { AN.isolated = AN.isolated ? null : id; anatSystemsOn(AN.sys); if (AN.isolated) AN.view.focus(id); else AN.view.unfocus(); anatStudyPanel(AN.sel); }
 function anatEndStudy() {
   const n = AN.explored.size;
   labFinish({ score: n * 10, max: ANAT.length * 10, correct: n, total: ANAT.length, mistakes: [], recs: ["anato", "fisio", "histo"], notes: [`Você explorou ${n} de ${ANAT.length} estruturas. Volte para completar os sistemas que faltam.`] });
@@ -335,10 +227,7 @@ function anatPick(id) {
   if (!AN || (LABCTX && LABCTX.pausedAt)) return;
   if (AN.sub === "estudo") {
     if (!id || !anatById(id)) return;
-    if (AN.sel) AN.view.glow(AN.sel, null);
-    AN.sel = id; AN.revealed = false; AN.explored.add(id);
-    AN.view.glow(id, 0x22d3ee); sfx.flip();
-    return anatStudyPanel(id);
+    return anatSelect(id);
   }
   if (AN.sub === "monte") return anatMontePick(id);
   if (AN.sub === "qual") return;
@@ -504,7 +393,7 @@ labRegister({
   time: { ini: 5, int: 7, adv: 10 }, xp: { ini: 40, int: 60, adv: 90 },
   refs: ["Moore KL. Anatomia orientada para a clínica", "Netter FH. Atlas de anatomia humana"],
   review: { status: "pendente" },
-  launch: anatLaunch,
+  launch: (d, s) => anatLaunch(d, s),
   count: () => ANAT.length,
   data: () => ({ sistemas: ANAT_SYS, estruturas: ANAT.map((a) => ({ id: a.id, nome: a.n, sistemas: a.sys, info: a.info, funcao: a.fn, clinica: a.clin })) }),
   validate: () => ANAT.filter((a) => !a.n || !a.sys || !a.sys.every((s) => ANAT_SYS[s]) || !a.parts.length || !a.fn || !a.clin).map((a) => "estrutura incompleta: " + a.id)

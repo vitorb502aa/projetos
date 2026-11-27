@@ -17,7 +17,7 @@ function go(name, arg = null) {
 }
 const SCREENS = {
   home: homeScreen, world: worldScreen, arena: arenaScreen, ranking: rankingScreen, battles: battlesScreen, battle: battleScreen,
-  review: reviewScreen, simcfg: simcfgScreen, grade: gradeScreen, lab: labScreen, labadmin: labAdminScreen, materials: materialsScreen, profile: profileScreen, avatar: avatarScreen
+  review: reviewScreen, tutor: tutorScreen, simcfg: simcfgScreen, grade: gradeScreen, lab: labScreen, labadmin: labAdminScreen, materials: materialsScreen, profile: profileScreen, avatar: avatarScreen
 };
 const TAB_OF = { world: "home", grade: "home", labadmin: "lab", ranking: "arena", battles: "arena", battle: "arena", simcfg: "review", avatar: "profile" };
 function rerender() {
@@ -35,30 +35,55 @@ function softRerender() {
   rerender();
 }
 
+// Ícones de navegação (linha, estilo das referências)
+const NAVI = {
+  home: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>',
+  lab: '<path d="M9 3h6M10 3v6L4 20a1 1 0 0 0 .9 1.5h14.2A1 1 0 0 0 20 20l-6-11V3"/><path d="M7 15h10"/>',
+  arena: '<path d="M14.5 17.5 3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2M9.5 6.5 21 3v3l-6 6M5 14l-2 2 3 3 2-2"/>',
+  review: '<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+  materials: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  profile: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  tutor: '<path d="M12 3v3M5 10a7 7 0 0 1 14 0v4a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4z"/><circle cx="9.5" cy="12" r="1"/><circle cx="14.5" cy="12" r="1"/><path d="M2 12v2M22 12v2"/>'
+};
+const navIc = (k, w = 22) => `<svg viewBox="0 0 24 24" width="${w}" height="${w}" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${NAVI[k]}</svg>`;
+function crestSvg(s = 34) {
+  return `<svg viewBox="0 0 40 44" width="${s}" height="${s * 1.1}" aria-hidden="true"><defs><linearGradient id="cr${s}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc24a"/><stop offset="1" stop-color="#ff6a1f"/></linearGradient></defs>
+    <path d="M20 2 37 8v13c0 10-7.5 18-17 21C10.5 39 3 31 3 21V8z" fill="url(#cr${s})"/><path d="M20 6 33 10.6V21c0 7.8-5.6 14.2-13 16.8C12.6 35.2 7 28.8 7 21V10.6z" fill="#1c120c"/>
+    <path d="M17 13h6v6h6v6h-6v6h-6v-6h-6v-6h6z" fill="url(#cr${s})"/></svg>`;
+}
+function flameSvg(s = 18) { return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" aria-hidden="true"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-4-1-6 1-9z" fill="#ff7a1a"/><path d="M12 12c1 2 3 3 3 5a3 3 0 0 1-6 0c0-1.5 1-2.5 1.5-3 .3 1 .8 1.5 1.5 1.5 0-1.5-.4-2.5 0-3.5z" fill="#ffd04a"/></svg>`; }
+// Escudo de conquista: cor e estrelas indicam o estado
+function shieldSvg(o = {}) {
+  const on = !!o.on, s = o.size || 34, c = o.color || "#ff7a1a", id = "sh" + Math.random().toString(36).slice(2, 7);
+  return `<svg class="shield ${on ? "on" : ""}" viewBox="0 0 40 46" width="${s}" height="${s * 1.15}" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${on ? c : "#5b4d44"}"/><stop offset="1" stop-color="${on ? "#9a2a0c" : "#2c241f"}"/></linearGradient></defs>
+    <path d="M20 2 37 8v13c0 10-7.5 18-17 22C10.5 39 3 31 3 21V8z" fill="url(#${id})" stroke="${on ? "#ffd27a" : "#6b5d54"}" stroke-width="1.6"/>
+    ${o.icon ? `<text x="20" y="27" text-anchor="middle" font-size="15">${o.icon}</text>` : `<path d="M20 12l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z" fill="${on ? "#ffe9a8" : "#7d6f66"}"/>`}
+    ${o.stars !== undefined ? `<g>${[0, 1, 2].map((i) => `<path transform="translate(${9 + i * 8.2} 33) scale(.32)" d="M10 0l3 6.3 6.9 1-5 4.9 1.2 6.9L10 15.8 3.9 19l1.2-6.9-5-4.9 6.9-1z" fill="${i < o.stars ? "#ffd04a" : "#00000066"}"/>`).join("")}</g>` : ""}</svg>`;
+}
+
 function shell(content, tab) {
   const L = levelInfo();
   const d = Math.min(dayVal("xp"), DAILY_GOAL);
   const due = dueCards().length;
-  const tabs = [["home", "🗺️", "Mapa"], ["lab", "🧪", "Lab"], ["arena", "⚔️", "Arena"], ["review", "🔁", "Revisão"], ["materials", "📚", "Materiais"], ["profile", "👤", "Perfil"]];
+  const top = [["home", "Mapa"], ["lab", "Lab"], ["tutor", "Tutor IA"], ["arena", "Arena"], ["review", "Revisão"], ["materials", "Materiais"], ["profile", "Perfil"]];
+  const bottom = [["home", "Mapa"], ["lab", "Lab"], ["tutor", "Tutor IA"], ["review", "Revisão"], ["profile", "Perfil"]];
+  const dot = (k) => (k === "review" && due ? `<b class="dot">${due > 99 ? "99+" : due}</b>` : "");
   return `
     <header class="topbar">
-      <div class="lvl" onclick="go('profile')">
-        ${avatarHtml(S.avatar, 44)}
-        <div class="lvl-info">
-          <div class="lvl-title">Nv ${L.lvl} · ${esc(L.title)}</div>
-          <div class="bar"><span style="width:${L.pct}%"></span></div>
-          <small>${L.cur}/${L.need} XP</small>
-        </div>
-      </div>
-      <div class="chips">
-        <span class="chip" title="Dias seguidos">🔥 ${currentStreak()}</span>
-        <span class="chip ${d >= DAILY_GOAL ? "done" : ""}" title="Meta diária de XP">🎯 ${d}/${DAILY_GOAL}</span>
+      <button class="crest" onclick="go('home')" aria-label="Início">${crestSvg(30)}<span>Med<b>Quest</b></span></button>
+      <nav class="topnav">${top.map(([k, l]) => `<button class="${tab === k ? "on" : ""} ${k === "tutor" ? "ai" : ""}" onclick="go('${k}')">${l}${dot(k)}</button>`).join("")}</nav>
+      <div class="top-r">
+        <span class="streak" title="Dias seguidos">${flameSvg(20)}<b>${currentStreak()}</b></span>
+        <span class="goal-chip ${d >= DAILY_GOAL ? "done" : ""}" title="Meta diária de XP"><i style="--p:${Math.round((d / DAILY_GOAL) * 100)}"></i>${d}/${DAILY_GOAL}</span>
+        <button class="me" onclick="go('profile')" title="Nível ${L.lvl} · ${esc(L.title)}">${avatarHtml(S.avatar, 38)}<b class="me-lv">${L.lvl}</b></button>
       </div>
     </header>
     <span id="pomo-mini" class="pomo-mini">${P.running ? `🍅 ${pomoText()}` : ""}</span>
     <main class="content">${content}</main>
-    <nav class="tabbar"><div class="brand">🩺 MedQuest</div>
-      ${tabs.map(([k, i, l]) => `<button class="${tab === k ? "on" : ""}" onclick="go('${k}')"><span class="ti">${i}${k === "review" && due ? `<b class="dot">${due > 99 ? "99+" : due}</b>` : ""}</span><span>${l}</span></button>`).join("")}
+    <nav class="tabbar">
+      ${bottom.map(([k, l]) => k === "tutor"
+        ? `<button class="tb-ai ${tab === k ? "on" : ""}" onclick="go('tutor')" aria-label="Tutor IA"><span class="ai-orb">${mascotSvg(46)}</span><span>${l}</span></button>`
+        : `<button class="${tab === k ? "on" : ""}" onclick="go('${k}')"><span class="ti">${navIc(k)}${dot(k)}</span><span>${l}</span></button>`).join("")}
     </nav>`;
 }
 
@@ -156,6 +181,25 @@ function missionsHtml() {
     </div>`;
 }
 
+function subjectCard(w) {
+  const list = stagesOf(w), max = list.length * 3, st = worldStars(w);
+  const fc = (w.flashcards || []).length, seen = (w.flashcards || []).filter((_, i) => S.srs[`${w.id}:${i}`]).length;
+  const bossOk = list.some((x) => x.key === "boss") && stageUnlocked(w, "boss");
+  return `
+    <div class="subj" style="--c:${w.color}">
+      <button class="subj-main" onclick="go('world','${w.id}')">
+        <span class="subj-ic">${w.icon}</span>
+        <span class="subj-info"><b>${esc(w.name)}</b>
+          <span class="mbar"><em>Fases</em><span class="bar o"><span style="width:${max ? Math.round((st / max) * 100) : 0}%"></span></span><small>${st}/${max}★</small></span>
+          <span class="mbar"><em>Revisão</em><span class="bar y"><span style="width:${fc ? Math.round((seen / fc) * 100) : 0}%"></span></span><small>${fc ? Math.round((seen / fc) * 100) : 0}%</small></span>
+        </span>
+      </button>
+      <div class="subj-foot">
+        <span class="shields">${list.map((x) => shieldSvg({ on: starsOf(w.id, x.key) > 0, stars: starsOf(w.id, x.key), size: 24 })).join("")}</span>
+        <button class="btn ${bossOk ? "primary" : "ghost"} small-btn" onclick="${bossOk ? `start('${w.id}','boss')` : `go('world','${w.id}')`}">${bossOk ? "Fazer prova" : "Jogar"}</button>
+      </div>
+    </div>`;
+}
 function homeScreen() {
   const due = dueCards().length;
   const tip = window.STUDY_TIPS[new Date().getDate() % window.STUDY_TIPS.length];
@@ -163,38 +207,50 @@ function homeScreen() {
   const cyc = S.ui.cycle;
   const worlds = cyc === "sem" ? myGrade().map(worldById) : worldsOfCycle(cyc);
   const segs = (hasGrade() ? [{ id: "sem", name: "Meu semestre", icon: "⭐" }] : []).concat(CYCLES);
+  const L = levelInfo(), d = Math.min(dayVal("xp"), DAILY_GOAL), gp = Math.round((d / DAILY_GOAL) * 100);
+  const last = S.ui.last && worldById(S.ui.last.w);
+  const lastSt = last && STAGES.find((x) => x.key === S.ui.last.k);
+  const ms = todayMissions();
+  const ticker = [`⚡ ${dayVal("xp")} XP hoje`, `🔥 ${currentStreak()} dia(s) seguidos`, `🔁 ${due} revisão(ões) pendente(s)`, `🎯 ${ms.filter((m) => m.done).length}/3 missões`, `🏅 ${medalCount(1)} medalhas`, `🧪 ${(S.lab && S.lab.history ? S.lab.history.length : 0)} simulações no Lab`];
   return `
-    ${missionsHtml()}
-    <button class="cta ${due ? "" : "muted"}" onclick="go('review')">
-      <span class="cta-ic">🔁</span>
-      <span class="cta-txt"><b>Revisão do dia</b><small>${due ? `${due} card(s) esperando por você` : "Tudo em dia! Jogue Flashcards para alimentar a revisão."}</small></span>
-      <span class="cta-go">›</span>
-    </button>
+    <section class="hero2">
+      <div class="h2-l">
+        <small>Olá, ${esc(S.nick || "estudante")} 👋</small>
+        <h1>Nível ${L.lvl} · <span>${esc(L.title)}</span></h1>
+        <div class="bar o big"><span style="width:${L.pct}%"></span></div>
+        <small>${L.cur}/${L.need} XP para o próximo nível</small>
+      </div>
+      <div class="donut big" style="--p:${gp}"><span>${gp}%<small>meta</small></span></div>
+    </section>
+    <div class="ticker" aria-label="Atividade de hoje"><b>Atividade de hoje</b><div class="tk-track"><div class="tk-run">${ticker.concat(ticker).map((t) => `<span>${t}</span>`).join("")}</div></div></div>
+    <div class="home-grid">
+      <div class="hg-main">
+        ${last && lastSt ? `<button class="continue" style="--c:${last.color}" onclick="start('${last.id}','${lastSt.key}')"><span class="subj-ic">${last.icon}</span><span class="cta-txt"><small>Continuar de onde parou</small><b>${esc(last.name)} · ${esc(lastSt.name)}</b></span><span class="play">▶</span></button>` : ""}
+        <button class="ai-card" onclick="go('tutor')"><span class="ai-orb">${mascotSvg(52)}</span><span class="cta-txt"><b>Tutor IA</b><small>Tire dúvidas, peça resumos, casos clínicos e quizzes sob medida.</small><span class="fake-in">Pergunte qualquer coisa… <i>➤</i></span></span></button>
+        <button class="cta ${due ? "" : "muted"}" onclick="go('review')">
+          <span class="cta-ic">${navIc("review", 26)}</span>
+          <span class="cta-txt"><b>Revisão do dia</b><small>${due ? `${due} card(s) esperando por você` : "Tudo em dia! Jogue Flashcards para alimentar a revisão."}</small></span>
+          <span class="cta-go">›</span>
+        </button>
+      </div>
+      <div class="hg-side">${missionsHtml()}</div>
+    </div>
     <div class="quick">
       <button onclick="go('lab')"><span>🧪</span>MedQuest Lab</button>
       <button onclick="startClock()"><span>⏱️</span>Contra o relógio</button>
       <button onclick="startPuzzleArcade()"><span>🧩</span>Quebra-cabeças</button>
       <button onclick="go('simcfg')"><span>📝</span>Simulado</button>
+      <button onclick="go('arena')"><span>⚔️</span>Arena</button>
       <button onclick="go('materials')"><span>📤</span>Meu material</button>
     </div>
-    <div class="tip">${esc(tip)}</div>
+    <div class="tip">💡 ${esc(tip)}</div>
+    <h2 class="sec">Matérias</h2>
     <div class="seg">
       ${segs.map((c) => `<button class="${cyc === c.id ? "on" : ""}" onclick="S.ui.cycle='${c.id}';save();rerender()">${c.icon} ${c.name}</button>`).join("")}
     </div>
     ${cyc === "sem" ? `<div class="sem-bar"><span>🎓 <b>${esc(semLabel())}</b> · ${worlds.length} matérias</span><button class="btn ghost small-btn" onclick="go('grade')">Editar grade</button></div>`
       : !S.semester ? `<div class="sem-bar"><span>🎓 Mostre só as matérias do seu semestre</span><button class="btn accent small-btn" onclick="showSemesterPicker()">Escolher período</button></div>` : ""}
-    ${worlds.length ? `<div class="worlds">${worlds.map((w) => {
-      const max = stagesOf(w).length * 3;
-      const st = worldStars(w);
-      return `
-        <button class="world" style="--c:${w.color}" onclick="go('world','${w.id}')">
-          <span class="w-ic">${w.icon}</span>
-          <span class="w-name">${esc(w.name)}</span>
-          <span class="w-desc">${esc(w.desc || "")}</span>
-          <span class="bar small"><span style="width:${max ? Math.round((st / max) * 100) : 0}%;background:${w.color}"></span></span>
-          <span class="w-stars">★ ${st}/${max}</span>
-        </button>`;
-    }).join("")}</div>` : `
+    ${worlds.length ? `<div class="worlds subj-grid">${worlds.map(subjectCard).join("")}</div>` : `
       <div class="panel center empty">
         <div class="big-emoji">📤</div>
         <p><b>Seu material vira jogo.</b> Envie PDFs de aulas, slides, resumos, anotações ou apostilas. O MedQuest cria flashcards, quizzes, pares, quebra-cabeças e desafios com o seu conteúdo.</p>
@@ -511,7 +567,7 @@ function profileScreen() {
         const v = m.v();
         const nextT = m.t[tier];
         return `<div class="ach ${tier ? "on" : ""}" style="--tc:${tier ? TIERS[tier].c : "transparent"}">
-          <span class="medal">${m.icon}</span><b>${esc(m.name)}</b>
+          <span class="medal">${shieldSvg({ on: tier > 0, icon: m.icon, color: tier ? ["", "#e07b39", "#9fb4c8", "#ffb020"][tier] : "", size: 42 })}</span><b>${esc(m.name)}</b>
           <small>${tier ? `${TIERS[tier].n}` : "Bloqueada"}${nextT ? ` · ${Math.min(v, nextT)}/${nextT} ${esc(m.unit)}` : " · completa!"}</small>
           <span class="tiers">${[1, 2, 3].map((t) => `<i class="${tier >= t ? "on" : ""}" style="--c:${TIERS[t].c}"></i>`).join("")}</span>
         </div>`;

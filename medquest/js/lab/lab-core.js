@@ -21,11 +21,11 @@ const LAB_MODES = {
   error: { n: "Encontre o erro", icon: "🔎" },
   ward: { n: "Plantão virtual", icon: "🏥" },
   instr: { n: "Instrumentos cirúrgicos", icon: "🛠️" },
-  osce: { n: "Estações OSCE", icon: "📋" }
+  osce: { n: "Estações OSCE", icon: "📋" },
+  lab: { n: "Laboratório virtual", icon: "🔬" }
 };
 // Modalidades planejadas: aparecem como "em breve", sem poderem ser abertas.
 const LAB_SOON = [
-  { icon: "🔬", n: "Laboratório virtual", d: "Microscópio, lâminas de histologia, microrganismos e exames de laboratório." },
   { icon: "🩻", n: "Investigação diagnóstica", d: "Radiografias, tomografias, ressonâncias e ECGs com imagens licenciadas." },
   { icon: "💊", n: "Desafios de farmacologia", d: "Receptores, mecanismos, moléculas e interações em situações fictícias." },
   { icon: "🔪", n: "Simulador cirúrgico completo", d: "Etapas de procedimentos e anatomia cirúrgica aplicada." }
@@ -305,7 +305,7 @@ function labArt(sim) {
     <g opacity=".18" stroke="#fff" stroke-width="1">${Array.from({ length: 8 }, (_, i) => `<line x1="${i * 22}" y1="0" x2="${i * 22 - 40}" y2="90"/>`).join("")}</g>
     <circle cx="122" cy="44" r="30" fill="#ffffff22"/>
     <text x="122" y="56" font-size="34" text-anchor="middle">${icon}</text>
-    <text x="12" y="78" font-size="10" fill="#ffffffcc" font-family="Nunito, sans-serif" font-weight="800">${esc(LAB_MODES[sim.mode].n.toUpperCase())}</text>
+    <text x="12" y="78" font-size="10" fill="#ffffffcc" font-family="Outfit, sans-serif" font-weight="800">${esc(LAB_MODES[sim.mode].n.toUpperCase())}</text>
   </svg>`;
 }
 function discColor(id) { const w = worldById(id); return w ? w.color : id === "radio" ? "#64748b" : "#22d3ee"; }
@@ -520,7 +520,8 @@ function labSceneShell(o) {
   // Estrutura padrão: HUD + área 3D + painel lateral (vira inferior no celular)
   return `<div class="lab-stage">
     ${labHud(o)}
-    <div class="lab-body">
+    <div class="lab-body${o.leftPanel !== undefined ? " three" : ""}">
+      ${o.leftPanel !== undefined ? `<aside class="lab-left" id="lab-left">${o.leftPanel}</aside>` : ""}
       <div class="lab-view" id="lab-view">${o.viewInner || ""}${o.noCam ? "" : camControlsHtml(o.camExtra || "")}<div class="lab-toast" id="lab-toast"></div></div>
       <aside class="lab-side" id="lab-side">${o.side || ""}</aside>
     </div>

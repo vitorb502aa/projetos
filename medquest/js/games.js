@@ -9,6 +9,7 @@ const clearTimers = () => { timers.forEach((t) => { clearTimeout(t); clearInterv
 function start(wid, key) {
   const w = worldById(wid);
   if (!w) return;
+  S.ui.last = { w: wid, k: key }; save();
   const base = { worldId: wid, stageKey: key, back: () => go("world", wid), restart: () => start(wid, key), xp: 0, bestCombo: 0, combo: 0 };
   if (key === "flash") {
     // Até 12 cards por rodada: primeiro os nunca estudados, depois os que vencem antes.
@@ -610,6 +611,10 @@ function renderFlash() {
     </div>`;
 }
 
+function aiExplainG(k) {
+  const it = G && G.items[k === undefined ? G.idx : k];
+  if (it) aiExplainItem(it.q, it.opts[it.ans], it.e || "");
+}
 function optionButtons(it, chosen, answered, onclickFn) {
   return `<div class="options">${it.opts.map((o, i) => {
     let cls = "";
@@ -630,6 +635,7 @@ function renderQuestion() {
         ${!ok ? `<div class="fb-ans">Resposta: <b>${esc(it.opts[it.ans])}</b></div>` : ""}
         <div class="fb-e">${esc(it.e)}</div>
         ${!ok && it.errKey && !G.errorsMode ? `<small class="fb-note">📒 Adicionada ao caderno de erros</small>` : ""}
+        <button class="btn ai-btn small-btn" onclick="aiExplainG()">🤖 Explicar com IA</button>
         <button class="btn ${ok ? "primary" : "danger"} block" onclick="next()">Continuar</button>
       </div>`;
   }
@@ -717,6 +723,7 @@ function renderBattle() {
         <div class="fb-h">${ok ? `✅ +${G.lastGain} pontos` : G.chosen === -1 ? "⏰ Tempo esgotado" : "❌ Errou"}</div>
         ${!ok ? `<div class="fb-ans">Resposta: <b>${esc(it.opts[it.ans])}</b></div>` : ""}
         <div class="fb-e">${esc(it.e)}</div>
+        <button class="btn ai-btn small-btn" onclick="aiExplainG()">🤖 Explicar com IA</button>
         <button class="btn ${ok ? "primary" : "danger"} block" onclick="battleNext()">${G.idx + 1 < G.items.length ? "Próxima" : "Ver resultado"}</button>
       </div>` : ""}
     </div>`;

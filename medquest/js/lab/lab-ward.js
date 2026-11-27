@@ -270,9 +270,61 @@ function wardLaunch(caseId, diff) {
   const sim = labSim("ward-" + caseId);
   labBegin(sim, diff, { objective: "Investigue, formule a hipótese e decida a conduta.", help: `<ul class="list"><li>Escolha as perguntas, os exames físicos e os exames complementares. Tudo o que você descobre vai para as anotações.</li><li>Ações essenciais somam pontos; ações desnecessárias ${diff === "ini" ? "não tiram pontos no nível iniciante" : "tiram pontos"}.</li>${diff === "adv" ? "<li>No avançado, você tem um número limitado de ações.</li>" : ""}<li>Quando estiver pronto(a), siga para a hipótese diagnóstica.</li></ul>` });
   WD = { cs, diff, stage: "intro", asked: [], examined: [], tested: [], notes: [], score: 0, budget: diff === "adv" ? 12 : Infinity, vitalsSeen: diff === "ini", tab: "q" };
+  WD.vt = wardParseVitals(cs.vitals);
+  const two = use2D();
   $app.innerHTML = labSceneShell({ title: `Plantão · ${cs.title}`, objective: LABCTX.objective, progress: 0, score: 0, timer: "up", noCam: true,
-    viewInner: `<div class="ward-scene" id="ward-scene"></div>` });
-  LABT.push(setInterval(() => labTickHud(), 1000));
+    viewInner: two ? `<div class="ward-scene" id="ward-scene"></div>` : `<div class="anat-bg"></div><div id="ward-hud"></div><div class="ward-speech" id="ward-speech"></div>` });
+  LABT.push(setInterval(() => { labTickHud(); fpSet("fp-time", fmtTime(labElapsed())); }, 1000));
+  wardRender();
+  if (!two) wardBuild3D(document.getElementById("lab-view"));
+}
+function fpVitalsTickOnce() { if (WD._ecg || !WD.vitalsSeen) return; WD._ecg = true; fpVitalsTick(WD.vt); }
+function wardParseVitals(v) {
+  const n = (x) => parseInt(String(x || "").replace(/[^0-9]/g, ""), 10) || 0;
+  const pa = String(v.PA || "120/80").split("/");
+  return { hr: n(v.FC) || 80, sat: n(v.SatO2) || 97, pas: n(pa[0]) || 120, pad: n(pa[1]) || 80, fr: n(v.FR) || 0, t: (String(v.T || "").match(/[0-9]+,[0-9]/) || [""])[0] };
+}
+// Leito 3D com paciente, monitor multiparamétrico em tempo real, suporte de soro e carrinho
+async function wardBuild3D(el) {
+  await loadThree();
+  if (!WD) return;
+  const c = WD.cs, p = c.patient;
+  const v = createViewer(el, { mode: "look", pos: [1.15, 1.55, 1.25], yaw: -0.62, pitch: -0.32, fov: 55, bg: "#dfe6ec", env: "room", shadows: true, exposure: 0.85, bounds: [-2.4, 2.4, -1.6, 2.2],
+    onKey: (k) => { if (!WD || WD.stage !== "inv" || (LABCTX && LABCTX.pausedAt)) return; if ("123".includes(k)) { WD.tab = "qet"["123".indexOf(k)]; wardRender(); } else if (k === "4") wardVitals(); else if (k === "5") { WD.stage = "dx"; wardRender(); } } });
+  LABV = v;
+  roomShell(v, { floor: "#a8b4c4", wall: "#e3ebf2", wainscot: "#7fa3c0", label: c.setting.toUpperCase() });
+  const kid = p.age < 12, skin = { M: "#b98264", F: "#d6a184" }[p.sex] || C.skin;
+  const bed = bBed({ head: 0, patient: { sheet: "#7fa9d6", skin, band: true, tube: c.id === "pac" || c.id === "iam" } });
+  bed.position.set(0, 0, -0.8); v.add(bed, "pac");
+  if (kid) { const pt = bed.children[bed.children.length - 1]; if (pt && pt.scale) pt.scale.setScalar(0.62); }
+  // Monitor com traçado de ECG desenhado em canvas
+  const cv = document.createElement("canvas"); cv.width = 512; cv.height = 320;
+  const tex = new THREE.CanvasTexture(cv); tex.encoding = THREE.sRGBEncoding;
+  const mon = grp(mBox([0, 0, 0], [0.6, 0.42, 0.07], "#1f2937", { round: 0.02, rough: 0.4 }), mPlane([0, 0, 0.037], [0.54, 0.34], tex), mCyl([0, -0.22, -0.02], [0, -1.35, -0.02], 0.025, null, { material: MAT.steel() }), mBox([0, -1.38, -0.02], [0.4, 0.04, 0.4], "#374151"));
+  mon.position.set(-0.85, 1.42, -1.45); mon.rotation.y = 0.45; v.add(mon, "mon");
+  const iv = bIV({ label: ["SF 0,9% 500 mL", esc(p.name.split(" ").slice(-1)[0]), "Início: agora"] }); iv.position.set(0.75, 0, -1.3); v.add(iv);
+  const cart = bCart({}); cart.position.set(1.7, 0, -0.9); cart.rotation.y = -0.6; v.add(cart);
+  const doc = bPerson({ gown: "#f8fafc", pants: "#1e3a5f", badge: ["DR(A).", "PLANTÃO"], holdChart: true }); doc.position.set(-1.6, 0, 0.2); doc.rotation.y = 0.9; v.add(doc);
+  v.scene.traverse((m) => { if (m.material && !m.material.isShaderMaterial && m.material.envMapIntensity !== undefined) m.material.envMapIntensity = 0.42; });
+  const g = cv.getContext("2d"); let ph = 0;
+  const draw = () => {
+    const vt = WD && WD.vt, seen = WD && WD.vitalsSeen;
+    g.fillStyle = "#03080c"; g.fillRect(0, 0, 512, 320);
+    g.strokeStyle = "#12313a"; g.lineWidth = 1; for (let x = 0; x < 360; x += 24) { g.beginPath(); g.moveTo(x, 20); g.lineTo(x, 300); g.stroke(); }
+    const trace = (y0, col, f, amp) => { g.strokeStyle = col; g.lineWidth = 3; g.beginPath(); for (let x = 0; x < 350; x++) { const y = y0 + f(x) * amp; x ? g.lineTo(x + 6, y) : g.moveTo(6, y); } g.stroke(); };
+    const hr = (vt && vt.hr) || 80;
+    trace(80, "#4ade80", (x) => { const pts = ecgPath(ph, 350, 1, hr).split(" "); const q = pts[x] ? +pts[x].split(",")[1] - 0.5 : 0; return q; }, 5);
+    trace(170, "#38bdf8", (x) => Math.sin((x / 350) * Math.PI * 2 * (hr / 60) * 2.2 + ph * 6) * 0.8, 18);
+    trace(250, "#facc15", (x) => Math.sin((x / 350) * Math.PI * 2 * 1.4 + ph * 3) * 0.6, 16);
+    g.textAlign = "right"; g.font = "700 52px Outfit, Arial"; g.fillStyle = "#4ade80"; g.fillText(seen ? String(hr) : "--", 500, 90);
+    g.font = "600 18px Inter, Arial"; g.fillText("FC bpm", 500, 40);
+    g.fillStyle = "#38bdf8"; g.font = "700 44px Outfit, Arial"; g.fillText(seen ? String(vt.sat) : "--", 500, 180); g.font = "600 18px Inter, Arial"; g.fillText("SpO2 %", 500, 130);
+    g.fillStyle = "#f8fafc"; g.font = "700 34px Outfit, Arial"; g.fillText(seen ? `${vt.pas}/${vt.pad}` : "--/--", 500, 260); g.font = "600 18px Inter, Arial"; g.fillText("PNI mmHg", 500, 215);
+    tex.needsUpdate = true; v.refresh();
+  };
+  LABT.push(setInterval(() => { if (LABCTX && LABCTX.pausedAt) return; ph += 0.05; draw(); }, 90));
+  draw();
+  v.onPick((h) => { if (!h || !WD) return; if (h.id === "mon") { if (!WD.vitalsSeen && WD.stage === "inv") wardVitals(); else labFlash("Monitor multiparamétrico: os valores aparecem depois de aferir os sinais vitais."); } else if (h.id === "pac") { if (WD.stage === "intro") { WD.stage = "inv"; wardRender(); } else labFlash(`🗣️ “${esc(c.complaint)}”`); } });
   wardRender();
 }
 function wardScene() {
@@ -282,8 +334,8 @@ function wardScene() {
     <rect x="20" y="30" width="120" height="70" rx="6" fill="#0b1220" stroke="#334155"/><text x="80" y="58" fill="#4ade80" font-size="13" text-anchor="middle" font-family="monospace">${WD.vitalsSeen ? esc(c.vitals.FC || "") : "-- bpm"}</text><text x="80" y="80" fill="#38bdf8" font-size="12" text-anchor="middle" font-family="monospace">${WD.vitalsSeen ? "SpO2 " + esc(c.vitals.SatO2 || "") : "SpO2 --"}</text>
     <rect x="160" y="110" width="200" height="40" rx="8" fill="#94a3b8"/><rect x="165" y="100" width="190" height="20" rx="6" fill="#e0f2fe"/><rect x="330" y="80" width="30" height="40" rx="6" fill="#cbd5e1"/>
     <text x="270" y="105" font-size="58" text-anchor="middle">${p.avatar}</text>
-    <text x="20" y="190" fill="#e2e8f0" font-size="14" font-family="Nunito, sans-serif" font-weight="800">${esc(p.name)}, ${p.age} ${p.age === 1 ? "ano" : "anos"}</text>
-    <text x="20" y="208" fill="#94a3b8" font-size="11" font-family="Nunito, sans-serif">${esc(c.setting)} · ${esc(p.job)}</text>
+    <text x="20" y="190" fill="#e2e8f0" font-size="14" font-family="Outfit, sans-serif" font-weight="800">${esc(p.name)}, ${p.age} ${p.age === 1 ? "ano" : "anos"}</text>
+    <text x="20" y="208" fill="#94a3b8" font-size="11" font-family="Outfit, sans-serif">${esc(c.setting)} · ${esc(p.job)}</text>
   </svg>`;
 }
 function wardAct(kind, i) {
@@ -306,6 +358,17 @@ function wardVitals() { if (WD.vitalsSeen) return; WD.vitalsSeen = true; WD.budg
 function wardRender() {
   const c = WD.cs, scene = document.getElementById("ward-scene");
   if (scene) scene.innerHTML = wardScene();
+  const hud = document.getElementById("ward-hud");
+  if (hud) {
+    const keys = c.questions.concat(c.exam, c.tests).filter((x) => x[2] === 1).length, found = WD.notes.filter((n) => n.w === 1 && n.kind !== "v").length;
+    hud.innerHTML = fpHudHtml({ vitals: WD.vitalsSeen ? WD.vt : null, timerLabel: "ATENDIMENTO", metaLabel: WD.budget !== Infinity ? "AÇÕES" : "ACHADOS", meta: WD.budget !== Infinity ? String(WD.budget) : `${found}/${keys}`,
+      tools: WD.stage === "inv" ? [{ k: "1", i: "💬", n: "Anamnese", run: "WD.tab='q';wardRender()" }, { k: "2", i: "🩺", n: "Exame", run: "WD.tab='e';wardRender()" }, { k: "3", i: "🧪", n: "Exames", run: "WD.tab='t';wardRender()" }, { k: "4", i: "📈", n: "Vitais", run: "wardVitals()" }, { k: "5", i: "🧠", n: "Hipótese", run: "WD.stage='dx';wardRender()" }] : [] });
+    fpSet("fp-score", WD.score); fpSet("fp-time", fmtTime(labElapsed()));
+    fpObjectives([["Aferir os sinais vitais", WD.vitalsSeen], [`Colher dados essenciais (${found}/${keys})`, found >= keys * 0.7], ["Formular a hipótese", ["conduct", "done"].includes(WD.stage) || WD.dxOk !== undefined], ["Definir a conduta", WD.stage === "done"]]);
+    const last = WD.notes[0], sp = document.getElementById("ward-speech");
+    if (sp) sp.innerHTML = last && last.kind === "q" ? `<span>${esc(c.patient.name.split(" ")[0])}:</span> “${esc(last.ans)}”` : WD.stage === "intro" ? `<span>${esc(c.patient.name.split(" ")[0])}:</span> “${esc(c.complaint)}”` : last ? `<span>${esc(last.label)}:</span> ${esc(last.ans)}` : "";
+    fpVitalsTickOnce();
+  }
   if (WD.stage === "intro") {
     return setSide(`<div class="side-sec prompt-card"><span class="tag">${esc(discName(c.area))} · ${esc(c.setting)}</span><h3>${esc(c.patient.name)}, ${c.patient.age} ${c.patient.age === 1 ? "ano" : "anos"}</h3>
       <p class="speech">“${esc(c.complaint)}”</p>${WD.vitalsSeen ? `<p class="small">${Object.entries(c.vitals).map(([k, v]) => `<b>${k}</b> ${esc(v)}`).join(" · ")}</p>` : ""}

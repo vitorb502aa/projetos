@@ -9,65 +9,85 @@ const grp = (...kids) => { const g = new THREE.Group(); kids.flat().forEach((k) 
 const lbl = (txt, p, s, o = {}) => mPlane(p, s, textTex(txt, { bg: o.bg || "#ffffff", fg: o.fg || "#111827", border: o.border, w: o.w || 512, h: o.h || 256, size: o.size }), { r: o.r });
 
 function bPerson(L = {}) {
-  const gown = L.gown || "#2f855a", sk = L.skin || C.skin;
-  const parts = [
-    mCyl([-0.09, 0, 0], [-0.09, 0.82, 0], 0.07, L.pants || gown), mCyl([0.09, 0, 0], [0.09, 0.82, 0], 0.07, L.pants || gown),
-    mBox([0, 1.12, 0], [0.42, 0.62, 0.24], gown),
-    mEll([0, 1.6, 0], [0.12, 0.14, 0.13], sk),
-    mBox([0, 0.02, 0.05], [0.36, 0.05, 0.25], "#111827")
-  ];
-  const armR = L.armUp ? mCyl([-0.25, 1.38, 0], [-0.3, 1.05, 0.25], 0.05, gown) : mCyl([-0.25, 1.38, 0], [-0.28, 0.85, 0.05], 0.05, gown);
-  const armL = mCyl([0.25, 1.38, 0], [0.28, 0.85, 0.05], 0.05, gown);
-  const handC = L.gloves ? (L.gloveColor || "#60a5fa") : sk;
-  const handR = mEll(L.armUp ? [-0.3, 1.02, 0.27] : [-0.28, 0.82, 0.06], [0.05, 0.06, 0.04], handC);
-  const handL = mEll([0.28, 0.82, 0.06], [0.05, 0.06, 0.04], handC);
-  parts.push(armR, armL, handR, handL);
-  if (L.cap) parts.push(mEll([0, 1.68, 0], [0.13, 0.08, 0.14], L.capColor || "#93c5fd"));
-  else if (L.hair === "loose") parts.push(mEll([0, 1.6, -0.08], [0.15, 0.22, 0.08], "#3f2a1d"));
-  else parts.push(mEll([0, 1.69, -0.01], [0.125, 0.06, 0.13], "#3f2a1d"));
-  if (L.mask === "ok") parts.push(mBox([0, 1.56, 0.12], [0.18, 0.11, 0.03], L.maskColor || "#bfdbfe"));
-  if (L.mask === "down") parts.push(mBox([0, 1.47, 0.11], [0.18, 0.07, 0.03], L.maskColor || "#bfdbfe"));
-  if (L.n95) parts.push(mEll([0, 1.55, 0.115], [0.09, 0.07, 0.05], "#f8fafc"));
-  if (L.goggles) parts.push(mBox([0, 1.64, 0.125], [0.2, 0.05, 0.02], "#a5f3fc", { opacity: 0.7 }));
-  if (L.ring) parts.push(mTorus([0.28, 0.8, 0.1], 0.025, 0.007, "#fbbf24", { metal: 0.8, rough: 0.2 }), mBox([-0.28, 0.9, 0.06], [0.06, 0.04, 0.06], "#fbbf24", { metal: 0.6 }));
-  if (L.coatOpen) parts.push(mBox([0, 1.1, 0.13], [0.12, 0.55, 0.02], "#1e3a8a"));
-  if (L.badge) parts.push(lbl(L.badge, [0.12, 1.28, 0.125], [0.12, 0.05]));
-  if (L.pipetteMouth) parts.push(mCyl([0, 1.55, 0.14], [0.02, 1.2, 0.35], 0.006, "#e2e8f0"));
-  if (L.holdChart) parts.push(mBox([-0.3, 1.05, 0.3], [0.2, 0.28, 0.02], "#f8fafc"));
+  const gown = L.gown || "#2f855a", sk = L.skin || C.skin, pants = L.pants || gown;
+  const F = (c) => MAT.fabric(c), SK = MAT.skin(sk);
+  const parts = [];
+  // Pernas e sapatos
+  [-1, 1].forEach((k) => {
+    parts.push(capsule([k * 0.09, 0.1, 0], [k * 0.095, 0.5, 0.01], 0.062, null, { material: F(pants), r2: 0.07 }));
+    parts.push(capsule([k * 0.095, 0.5, 0.01], [k * 0.1, 0.9, 0], 0.075, null, { material: F(pants), r2: 0.09 }));
+    parts.push(mBox([k * 0.09, 0.035, 0.04], [0.1, 0.07, 0.25], "#e5e7eb", { round: 0.03, rough: 0.5 }));
+  });
+  // Tronco (jaleco/roupa) com ombros arredondados
+  const torso = new THREE.Mesh(varTubeGeo([[0, 0.86, 0], [0, 1.05, 0.005], [0, 1.25, 0.01], [0, 1.42, 0]], (t) => 0.165 + 0.035 * Math.sin(Math.PI * t) - 0.03 * t, { radial: 24 }), F(gown));
+  torso.scale.z = 0.62; parts.push(torso);
+  parts.push(mEll([0, 1.41, 0], [0.2, 0.06, 0.11], null, { material: F(gown) }));
+  // Pescoço e cabeça
+  parts.push(mCyl([0, 1.43, 0], [0, 1.52, 0.005], 0.045, null, { material: SK }));
+  parts.push(mEll([0, 1.62, 0.005], [0.093, 0.118, 0.105], null, { material: SK, seg: 40 }));
+  parts.push(mEll([0, 1.585, 0.1], [0.018, 0.026, 0.02], null, { material: SK }));
+  [-1, 1].forEach((k) => { parts.push(mEll([k * 0.034, 1.635, 0.088], [0.012, 0.008, 0.006], "#2b1b12", { rough: 0.2, clearcoat: 1 })); parts.push(mEll([k * 0.092, 1.615, 0], [0.012, 0.025, 0.016], null, { material: SK })); });
+  // Braços
+  const handC = L.gloves ? (L.gloveColor || "#4f8fe8") : null;
+  const handMat = handC ? mkMat(handC, { rough: 0.42, clearcoat: 0.35, sheen: "#1c2c48" }) : SK;
+  const armR = L.armUp ? [[-0.2, 1.38, 0], [-0.27, 1.16, 0.1], [-0.3, 1.04, 0.27]] : [[-0.2, 1.38, 0], [-0.25, 1.12, 0.02], [-0.27, 0.86, 0.06]];
+  const armL = [[0.2, 1.38, 0], [0.25, 1.12, 0.02], [0.27, 0.86, 0.06]];
+  [armR, armL].forEach((a) => {
+    parts.push(capsule(a[0], a[1], 0.05, null, { material: F(gown), r2: 0.043 }));
+    parts.push(capsule(a[1], a[2], 0.042, null, { material: L.coatOpen || L.gloves ? F(gown) : SK, r2: 0.035 }));
+    parts.push(mEll([a[2][0], a[2][1] - 0.035, a[2][2]], [0.033, 0.05, 0.022], null, { material: handMat }));
+  });
+  // Cabelo, gorro, máscara e EPIs
+  if (L.cap) parts.push(mEll([0, 1.67, -0.005], [0.103, 0.085, 0.113], null, { material: F(L.capColor || "#93c5fd") }));
+  else if (L.hair === "loose") parts.push(mEll([0, 1.6, -0.06], [0.12, 0.2, 0.08], "#3f2a1d", { rough: 0.7, sheen: "#2a1d14" }), mEll([0, 1.68, -0.005], [0.1, 0.07, 0.11], "#3f2a1d", { rough: 0.7 }));
+  else parts.push(mEll([0, 1.68, -0.012], [0.098, 0.065, 0.108], "#3f2a1d", { rough: 0.7, sheen: "#2a1d14" }));
+  if (L.mask === "ok") parts.push(mEll([0, 1.575, 0.075], [0.08, 0.05, 0.045], null, { material: F(L.maskColor || "#bfdbfe") }));
+  if (L.mask === "down") parts.push(mEll([0, 1.49, 0.07], [0.08, 0.035, 0.04], null, { material: F(L.maskColor || "#bfdbfe") }));
+  if (L.n95) parts.push(mEll([0, 1.575, 0.08], [0.07, 0.055, 0.05], "#f8fafc", { rough: 0.8 }));
+  if (L.goggles) parts.push(mBox([0, 1.64, 0.1], [0.17, 0.045, 0.02], "#a5f3fc", { opacity: 0.55, round: 0.012, rough: 0.05, clearcoat: 1 }));
+  if (L.ring) parts.push(mTorus([0.27, 0.8, 0.07], 0.02, 0.006, "#fbbf24", { metal: 1, rough: 0.15 }), mBox([-0.27, 0.9, 0.06], [0.05, 0.035, 0.05], "#fbbf24", { metal: 1, rough: 0.2 }));
+  if (L.coatOpen) parts.push(mBox([0, 1.1, 0.12], [0.1, 0.5, 0.02], "#1e3a8a"));
+  if (L.badge) parts.push(lbl(L.badge, [0.1, 1.27, 0.165], [0.1, 0.045]));
+  if (L.pipetteMouth) parts.push(mCyl([0, 1.57, 0.11], [0.02, 1.25, 0.35], 0.006, "#e2e8f0", { opacity: 0.7, rough: 0.1 }));
+  if (L.holdChart) parts.push(mBox([-0.3, 1.05, 0.3], [0.2, 0.28, 0.015], "#f8fafc", { round: 0.006 }));
   const g = grp(parts);
-  if (L.sit) { g.scale.set(1, 0.8, 1); }
+  if (L.sit) g.scale.set(1, 0.8, 1);
   return g;
 }
 function bLyingPatient(L = {}) {
-  const sk = L.skin || C.skin;
+  const sk = L.skin || C.skin, SK = MAT.skin(sk);
   const g = grp(
-    mEll([0, 0.0, -0.75], [0.12, 0.13, 0.12], sk),
-    mBox([0, -0.02, 0.05], [0.5, 0.18, 1.3], L.sheet || "#bfdbfe"),
-    mCyl([-0.3, 0.02, -0.4], [-0.3, 0.02, 0.15], 0.05, sk)
+    mEll([0, 0.04, -0.75], [0.1, 0.1, 0.12], null, { material: SK, seg: 36 }),
+    mEll([0, 0.1, -0.68], [0.06, 0.035, 0.03], null, { material: SK }),
+    mBox([0, -0.02, 0.08], [0.56, 0.2, 1.36], null, { material: MAT.fabric(L.sheet || "#bfdbfe"), round: 0.08 }),
+    mBox([0, 0.075, -0.45], [0.58, 0.03, 0.2], null, { material: MAT.fabric("#f8fafc"), round: 0.015 }),
+    capsule([-0.3, 0.05, -0.42], [-0.32, 0.05, 0.12], 0.045, null, { material: SK, r2: 0.038 })
   );
-  if (L.band) g.add(mTorus([-0.3, 0.02, 0.1], 0.055, 0.014, L.bandColor || "#ffffff", { r: [0, 0, 0] }));
-  if (L.tube) g.add(mCyl([0, 0.06, -0.68], [0.25, 0.3, -0.9], 0.012, "#e2e8f0"));
-  if (L.mark) g.add(mBox([0.18, 0.08, 0.35], [0.06, 0.01, 0.06], "#111827"));
-  if (L.dressing) g.add(mBox([-0.1, 0.07, -0.62], [0.09, 0.02, 0.07], L.dressing));
-  if (L.plate) g.add(mBox([0.16, 0.08, 0.25], [0.12, 0.01, 0.16], L.plate));
-  if (L.confused) g.add(lbl(["Paciente idoso,", "confuso"], [0, 0.5, -0.9], [0.5, 0.2], { bg: "#fef3c7" }));
+  if (L.band) g.add(mTorus([-0.32, 0.05, 0.08], 0.045, 0.012, L.bandColor || "#ffffff", { r: [0, 0, 0] }));
+  if (L.tube) g.add(mCyl([0, 0.1, -0.68], [0.25, 0.32, -0.9], 0.01, "#e2e8f0", { opacity: 0.7, rough: 0.1 }));
+  if (L.mark) g.add(mBox([0.18, 0.1, 0.35], [0.06, 0.01, 0.06], "#111827"));
+  if (L.dressing) g.add(mBox([-0.1, 0.11, -0.62], [0.08, 0.015, 0.06], L.dressing));
+  if (L.plate) g.add(mBox([0.16, 0.1, 0.25], [0.12, 0.01, 0.16], L.plate));
+  if (L.confused) g.add(lbl(["Paciente idoso,", "confuso"], [0, 0.55, -0.9], [0.5, 0.2], { bg: "#fef3c7" }));
   return g;
 }
 function bBed(L = {}) {
   const head = L.head ?? 0;
+  const st = MAT.steel(), wheel = mkMat("#1f2937", { rough: 0.6 });
   const g = grp(
-    mBox([0, 0.35, 0], [0.95, 0.12, 2.0], C.steel, { metal: 0.4 }),
-    ...[[-0.42, -0.9], [0.42, -0.9], [-0.42, 0.9], [0.42, 0.9]].map(([x, z]) => mCyl([x, 0, z], [x, 0.33, z], 0.03, C.dark)),
-    mBox([0, 0.62, -1.0], [0.95, 0.55, 0.05], "#cbd5e1")
+    mBox([0, 0.35, 0], [0.95, 0.1, 2.0], "#d6dbe1", { round: 0.03, rough: 0.35, clearcoat: 0.4 }),
+    ...[[-0.42, -0.9], [0.42, -0.9], [-0.42, 0.9], [0.42, 0.9]].flatMap(([x, z]) => [mCyl([x, 0.08, z], [x, 0.32, z], 0.025, null, { material: st }), mCyl([x - 0.03, 0.045, z], [x + 0.03, 0.045, z], 0.045, null, { material: wheel })]),
+    mBox([0, 0.68, -1.0], [0.98, 0.6, 0.05], "#e8edf2", { round: 0.03, rough: 0.35, clearcoat: 0.5 }),
+    mBox([0, 0.58, 1.0], [0.98, 0.36, 0.05], "#e8edf2", { round: 0.03, rough: 0.35, clearcoat: 0.5 })
   );
-  const mattress = mBox([0, 0.48, 0.25], [0.88, 0.14, 1.45], "#e0f2fe");
-  const backrest = grp(mBox([0, 0, -0.3], [0.88, 0.14, 0.6], "#e0f2fe"));
+  const mattress = mBox([0, 0.48, 0.25], [0.88, 0.14, 1.45], null, { material: MAT.fabric("#dbeafe"), round: 0.05 });
+  const backrest = grp(mBox([0, 0, -0.3], [0.88, 0.14, 0.6], null, { material: MAT.fabric("#dbeafe"), round: 0.05 }), mBox([0, 0.1, -0.42], [0.62, 0.1, 0.32], null, { material: MAT.fabric("#ffffff"), round: 0.05 }));
   backrest.position.set(0, 0.48, -0.15); backrest.rotation.x = (head * Math.PI) / 180;
   g.add(mattress, backrest);
   const railY = L.rails === "down" ? 0.4 : 0.72;
-  g.add(mBox([-0.48, railY, -0.1], [0.03, 0.2, 1.2], C.steel, { metal: 0.5 }), mBox([0.48, railY, -0.1], [0.03, 0.2, 1.2], C.steel, { metal: 0.5 }));
-  if (L.patient) { const p = bLyingPatient(L.patient); p.position.set(0, 0.68, 0.15); g.add(p); }
-  if (L.label) g.add(lbl(L.label, [0, 0.95, -1.03], [0.5, 0.2]));
+  [-0.48, 0.48].forEach((x) => g.add(mBox([x, railY, -0.1], [0.03, 0.2, 1.2], "#cfd6dd", { round: 0.012, rough: 0.3, clearcoat: 0.5 })));
+  if (L.patient) { const p = bLyingPatient(L.patient); p.position.set(0, 0.66, 0.15); g.add(p); }
+  if (L.label) g.add(lbl(L.label, [0, 0.98, -1.03], [0.5, 0.2]));
   if (L.wheelsUnlocked) g.add(mBox([0.42, 0.05, 0.95], [0.08, 0.06, 0.06], C.red));
   return g;
 }
@@ -407,28 +427,28 @@ async function errLaunch(sceneId, diff) {
   const n = Object.values(run).filter((r) => r.err).length;
   labBegin(sim, diff, { objective: `Encontre os ${n} erros do cenário.`, help: `<ul class="list"><li>Arraste para olhar em volta; use + e − para aproximar. Mude de posição com ◀ ▶.</li><li>Toque num objeto ou pessoa para inspecionar.</li><li>Se achar que há um erro, toque em “Há um erro aqui”. Marcar algo correto como erro tira pontos.</li>${diff === "adv" ? "<li>No avançado, você também precisa apontar qual é o problema.</li>" : ""}<li>A dica revela a área de um erro, mas custa 25 pontos.</li></ul>` });
   EF = { scene, diff, run, n, found: new Set(), wrong: [], score: 0, hints: 0, judged: new Set(), view: 0, classOk: 0 };
+  EF.vitals = ERR_VITALS[scene.id] || null;
+  const two = use2D();
   $app.innerHTML = labSceneShell({ title: `Encontre o erro · ${scene.n}`, objective: LABCTX.objective, progress: 0, score: 0, timer: diff === "adv" ? "down" : "up", left: 6 * MIN,
-    camExtra: `<button onclick="errView(-1)" aria-label="Posição anterior">◀</button><button onclick="errView(1)" aria-label="Próxima posição">▶</button>`, noCam: use2D() });
+    viewInner: two ? "" : fpHudHtml({ vitals: EF.vitals, timerLabel: diff === "adv" ? "RESTANTE" : "TEMPO", objectives: [], metaLabel: "ERROS", meta: `0/${n}`, crosshair: true,
+      tools: [{ k: "E", i: "🔍", n: "Inspecionar", run: "errCenter()" }, { k: "F", i: "💡", n: "Dica", run: "errHint()" }, { k: "Q", i: "🚶", n: "Posição", run: "errView(1)" }, { k: "R", i: "📋", n: "Relatório", run: "errFinishAsk()" }, { k: "Esc", i: "⏸", n: "Pausa", run: "labPause()" }] }),
+    camExtra: `<button onclick="errView(-1)" aria-label="Posição anterior">◀</button><button onclick="errView(1)" aria-label="Próxima posição">▶</button>`, noCam: two });
   if (diff === "adv") { EF.endAt = Date.now() + 6 * MIN; LABCTX.onPause = () => (EF._pz = Date.now()); LABCTX.onResume = () => (EF.endAt += Date.now() - EF._pz); }
   LABT.push(setInterval(() => {
     if (!LABCTX || LABCTX.pausedAt) return;
-    if (EF.endAt) { const left = EF.endAt - Date.now(); labTickHud(left); if (left <= 0) errEnd(true); } else labTickHud();
+    if (EF.endAt) { const left = EF.endAt - Date.now(); labTickHud(left); fpSet("fp-time", fmtTime(Math.max(0, left))); if (left <= 0) errEnd(true); } else { labTickHud(); fpSet("fp-time", fmtTime(labElapsed())); }
   }, 500));
+  fpVitalsTick(EF.vitals);
   errIntro();
   const el = document.getElementById("lab-view");
   if (use2D()) return errBuild2D(el);
   await loadThree();
   const v0 = scene.views[0];
-  const v = createViewer(el, { mode: "look", pos: v0.p, yaw: v0.y, pitch: v0.pt, fov: 62, bg: "#0b1220" });
+  const v = createViewer(el, { mode: "look", pos: v0.p, yaw: v0.y, pitch: v0.pt, fov: 62, bg: "#dfe6ec", env: "room", shadows: true, exposure: 0.85, bounds: [-2.6, 2.6, -1.9, 2.3],
+    onKey: (k) => { if (!EF || (LABCTX && LABCTX.pausedAt)) return; if (k === "e") errCenter(); else if (k === "f") errHint(); else if (k === "q") errView(1); else if (k === "r") errFinishAsk(); } });
   LABV = v;
-  // Sala
-  v.add(mBox([0, -0.01, 0], [6, 0.02, 5], scene.floor));
-  v.add(mBox([0, 1.4, -2.5], [6, 2.8, 0.05], scene.wall));
-  v.add(mBox([-3, 1.4, 0], [0.05, 2.8, 5], scene.wall));
-  v.add(mBox([3, 1.4, 0], [0.05, 2.8, 5], scene.wall));
-  v.add(mBox([0, 1.4, 2.5], [6, 2.8, 0.05], scene.wall, { opacity: 0.25 }));
-  v.add(mBox([0, 0.06, -2.47], [6, 0.12, 0.02], "#64748b"));
-  v.add(lbl(scene.n.toUpperCase(), [0, 2.55, -2.47], [1.8, 0.28], { bg: "#0f172a", fg: "#e2e8f0", size: 64, w: 768 }));
+  roomShell(v, { floor: scene.floor, wall: scene.wall, wainscot: scene.wainscot, label: scene.n.toUpperCase(), window: scene.id !== "cc" });
+  EF.hands = fpHands(v, { sleeve: "#2c6e8f" });
   if (scene.decor) scene.decor(v);
   EF.groups = {};
   scene.objects.forEach((o) => {
@@ -437,8 +457,20 @@ async function errLaunch(sceneId, diff) {
     v.add(g, o.id);
     EF.groups[o.id] = g;
   });
-  v.onPick((h) => h && errInspect(h.id));
+  v.scene.traverse((m) => { if (m.material && !m.material.isShaderMaterial && m.material.envMapIntensity !== undefined) m.material.envMapIntensity = 0.42; });
+  v.onPick((h) => { if (h) { EF.hands && EF.hands.poke(); errInspect(h.id); } });
+  errHud();
   v.onHover((id) => { Object.entries(EF.groups).forEach(([k, g]) => { if (!EF.found.has(k) && k !== EF.sel) setGlow(g, k === id ? 0x334155 : null, 0.6); }); v.refresh(); });
+}
+const ERR_VITALS = {
+  cc: { hr: 72, sat: 99, pas: 118, pad: 72, fr: 12 }, enf: { hr: 84, sat: 96, pas: 128, pad: 82, fr: 18, t: "36,8" }, ps: { hr: 108, sat: 93, pas: 100, pad: 64, fr: 24, t: "38,1" },
+  uti: { hr: 96, sat: 94, pas: 94, pad: 58, fr: 22, t: "37,4" }, cons: { hr: 78, sat: 98, pas: 124, pad: 80 }, proc: { hr: 76, sat: 98, pas: 122, pad: 78 }
+};
+function errCenter() { if (!EF || !LABV || !LABV.pickCenter) return; const h = LABV.pickCenter(); if (h) { EF.hands && EF.hands.poke(); errInspect(h.id); } else labFlash("Mire no objeto (círculo central) e aperte E, ou toque nele."); }
+function errHud() {
+  if (!EF) return;
+  fpSet("fp-score", EF.score); fpSet("fp-meta", `${EF.found.size}/${EF.n}`);
+  fpObjectives([[`Encontrar os ${EF.n} erros (${EF.found.size}/${EF.n})`, EF.found.size >= EF.n], [`Inspecionar 6 itens (${Math.min(6, EF.judged.size)}/6)`, EF.judged.size >= 6], ["Não marcar itens adequados como erro", EF.found.size >= EF.n && !EF.wrong.length], ["Usar no máximo 1 dica", EF.found.size >= EF.n && EF.hints <= 1]].concat(EF.diff !== "ini" ? [[`Identificar o problema (${EF.classOk})`, EF.classOk >= EF.n]] : []));
 }
 function errBuild2D(el) {
   el.innerHTML = `<div class="err2d">${EF.scene.objects.map((o) => `<button class="err2d-item" data-o="${o.id}" onclick="errInspect('${o.id}')"><b>${esc(o.n)}</b><small>Toque para inspecionar</small></button>`).join("")}</div>`;
@@ -456,6 +488,7 @@ function errIntro() {
     ${errStatus()}`);
 }
 function errStatus() {
+  setTimeout(errHud, 0);
   return `<div class="side-sec"><small>Erros encontrados</small><div class="found-dots">${Array.from({ length: EF.n }, (_, i) => `<i class="${i < EF.found.size ? "on" : ""}"></i>`).join("")}</div>
     <small>Marcações erradas: ${EF.wrong.length} · Dicas: ${EF.hints}</small>
     <div class="row wrap"><button class="btn ghost small-btn" onclick="errHint()">💡 Dica (−25)</button><button class="btn accent small-btn" onclick="errFinishAsk()">Finalizar</button></div></div>
