@@ -14,6 +14,7 @@
   --gold: #facc15;
   --radius: 18px;
   --shadow: 0 6px 0 rgba(0, 0, 0, .35);
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -358,6 +359,7 @@ textarea:focus, select:focus { outline: none; border-color: var(--primary); }
 .modal-card { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 22px; max-width: 420px; width: 100%; text-align: center; max-height: 90vh; overflow-y: auto; }
 .modal-card h2 { font-size: 22px; font-weight: 900; margin: 8px 0; }
 .modal-card p { color: var(--muted); }
+.modal-card .ask-msg { color: var(--text); font-weight: 800; font-size: 17px; margin: 4px 0 8px; }
 .list { text-align: left; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
 
 #toasts { position: fixed; top: calc(10px + env(safe-area-inset-top)); left: 0; right: 0; z-index: 60; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; padding: 0 16px; }

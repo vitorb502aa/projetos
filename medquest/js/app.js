@@ -128,6 +128,24 @@
     setTimeout(() => t.remove(), 3100);
   }
 
+  // Confirmação dentro do app (no lugar de confirm(), que nem todo navegador mostra).
+  function ask(msg, buttons) {
+    const old = document.querySelector(".modal"); if (old) old.remove();
+    const m = document.createElement("div");
+    m.className = "modal";
+    m.innerHTML = `<div class="modal-card"><p class="ask-msg">${msg}</p><div class="col"></div></div>`;
+    const col = m.querySelector(".col");
+    buttons.concat([{ label: "Cancelar", cls: "ghost" }]).forEach((b) => {
+      const el = document.createElement("button");
+      el.className = `btn block ${b.cls || "primary"}`;
+      el.textContent = b.label;
+      el.onclick = () => { m.remove(); if (b.run) b.run(); };
+      col.appendChild(el);
+    });
+    m.addEventListener("click", (e) => { if (e.target === m) m.remove(); });
+    document.body.appendChild(m);
+  }
+
   function confetti() {
     const colors = ["#22d3ee", "#a78bfa", "#f472b6", "#facc15", "#4ade80", "#fb923c"];
     const layer = document.createElement("div");
@@ -345,9 +363,9 @@
   }
 
   function showOnboarding() {
-    if (document.querySelector(".modal")) return;
+    if (document.querySelector(".modal.onboard")) return;
     const m = document.createElement("div");
-    m.className = "modal";
+    m.className = "modal onboard";
     m.innerHTML = `
       <div class="modal-card">
         <div class="big-emoji">🩺</div>
@@ -802,12 +820,11 @@
     if (!G) return;
     if (G.mode === "result") { G = null; return rerender(); }
     const back = G.back;
+    const leave = () => { clearTimers(); G = null; back(); };
     if (G.idx > 0 || (G.matched && G.matched.length)) {
-      if (!confirm("Sair da fase? O progresso desta rodada será perdido (o XP ganho fica).")) return;
+      return ask("Sair da fase? O progresso desta rodada será perdido, mas o XP ganho fica.", [{ label: "Sair", cls: "danger", run: leave }]);
     }
-    clearTimers();
-    G = null;
-    back();
+    leave();
   }
 
   // ---------- Render do jogo ----------
@@ -947,16 +964,22 @@
     rerender();
   }
   function delCard(id) {
-    if (!confirm("Excluir este card?")) return;
-    S.custom = S.custom.filter((c) => c.id !== id);
-    delete S.srs[id];
-    save(); rerender();
+    ask("Excluir este card?", [{ label: "Excluir", cls: "danger", run: () => {
+      S.custom = S.custom.filter((c) => c.id !== id);
+      delete S.srs[id];
+      save(); rerender();
+    } }]);
   }
   function resetAll() {
-    if (!confirm("Tem certeza? Todo o XP, estrelas, cards e conquistas serão apagados.")) return;
-    const custom = confirm("Manter seus flashcards criados?") ? S.custom : [];
-    S = defaultState(); S.custom = custom; S.onboarded = true;
-    save(); go("home");
+    const wipe = (keepCards) => {
+      const custom = keepCards ? S.custom : [];
+      S = defaultState(); S.custom = custom; S.onboarded = true;
+      save(); go("home"); toast("Progresso apagado.");
+    };
+    ask("Apagar todo o progresso? XP, estrelas, revisões e conquistas serão zerados.", [
+      { label: "Apagar, mas manter meus cards", cls: "danger", run: () => wipe(true) },
+      { label: "Apagar tudo", cls: "danger-ghost", run: () => wipe(false) }
+    ]);
   }
 
   // Teclado (computador): 1-4 / A-D respondem, espaço vira o card, Enter continua.
@@ -988,7 +1011,7 @@
     locked: () => toast("🔒 Ganhe ao menos 1 estrela na fase anterior para liberar."),
     storyToggle: (open) => { if (G) G.storyOpen = open; },
     toggleSound: (v) => { S.sound = v; save(); if (v) sfx.ok(); },
-    closeOnboarding: () => { S.onboarded = true; save(); const m = document.querySelector(".modal"); if (m) m.remove(); },
+    closeOnboarding: () => { S.onboarded = true; save(); const m = document.querySelector(".modal.onboard"); if (m) m.remove(); },
     showHelp: () => { S.onboarded = false; showOnboarding(); }
   };
 
@@ -997,7 +1020,9 @@
 
   rerender();
 
-  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
-  }
+  try {
+    if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+    }
+  } catch (e) { /* sem service worker (ex.: visualizador embutido) */ }
 })();
