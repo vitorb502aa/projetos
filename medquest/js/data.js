@@ -2,7 +2,7 @@
 // Cada mundo tem: flashcards, quiz, verdadeiro/falso, pares e casos clínicos.
 window.WORLDS = [
   {
-    id: "anato",
+    id: "anato", cycle: "basico",
     name: "Anatomia",
     icon: "🦴",
     color: "#f59e0b",
@@ -43,6 +43,10 @@ window.WORLDS = [
       ["Nervo axilar", "Músculo deltoide"],
       ["Nervo frênico", "Diafragma"]
     ],
+    seq: [
+      { t: "Trajeto do ar inspirado", items: ["Cavidade nasal", "Faringe", "Laringe", "Traqueia", "Brônquio principal", "Bronquíolos", "Alvéolos"], e: "A troca gasosa acontece só nos alvéolos." },
+      { t: "Camadas do couro cabeludo (SCALP)", items: ["Pele", "Tecido conjuntivo denso", "Aponeurose epicrânica", "Tecido conjuntivo frouxo", "Pericrânio"], e: "Skin, Connective tissue, Aponeurosis, Loose tissue, Pericranium. A camada frouxa é a “camada perigosa”." }
+    ],
     cases: [
       {
         title: "Queda sobre o ombro",
@@ -56,9 +60,9 @@ window.WORLDS = [
     ]
   },
   {
-    id: "fisio",
+    id: "fisio", cycle: "basico",
     name: "Fisiologia",
-    icon: "🫀",
+    icon: "🌡️",
     color: "#ef4444",
     desc: "Como o corpo funciona.",
     flashcards: [
@@ -97,6 +101,10 @@ window.WORLDS = [
       ["Grelina", "Estimula a fome"],
       ["Leptina", "Promove saciedade"]
     ],
+    seq: [
+      { t: "Sistema de condução cardíaca", items: ["Nó sinoatrial", "Vias internodais", "Nó atrioventricular", "Feixe de His", "Ramos direito e esquerdo", "Fibras de Purkinje"], e: "O nó AV atrasa o impulso para que os átrios terminem de encher os ventrículos." },
+      { t: "Trajeto do filtrado no néfron", items: ["Cápsula de Bowman", "Túbulo contorcido proximal", "Alça de Henle descendente", "Alça de Henle ascendente", "Túbulo contorcido distal", "Ducto coletor"], e: "A alça descendente é permeável à água; a ascendente, não." }
+    ],
     cases: [
       {
         title: "Maratonista desidratado",
@@ -110,7 +118,7 @@ window.WORLDS = [
     ]
   },
   {
-    id: "farmaco",
+    id: "farmaco", cycle: "basico",
     name: "Farmacologia",
     icon: "💊",
     color: "#8b5cf6",
@@ -151,6 +159,10 @@ window.WORLDS = [
       ["Organofosforados", "Atropina + pralidoxima"],
       ["Metanol", "Fomepizol"]
     ],
+    seq: [
+      { t: "Farmacocinética (LADME)", items: ["Liberação", "Absorção", "Distribuição", "Metabolização", "Excreção"], e: "A metabolização é sobretudo hepática (fases I e II); a excreção, sobretudo renal." },
+      { t: "Fases do desenvolvimento de um fármaco", items: ["Estudos pré-clínicos", "Fase I: segurança em voluntários", "Fase II: eficácia e dose", "Fase III: grandes ensaios comparativos", "Fase IV: farmacovigilância"], e: "A fase IV acontece depois da aprovação, na comercialização." }
+    ],
     cases: [
       {
         title: "Intoxicação no pronto-socorro",
@@ -164,7 +176,7 @@ window.WORLDS = [
     ]
   },
   {
-    id: "micro",
+    id: "micro", cycle: "basico",
     name: "Microbiologia",
     icon: "🦠",
     color: "#10b981",
@@ -205,6 +217,10 @@ window.WORLDS = [
       ["Vibrio cholerae", "Cólera"],
       ["Bordetella pertussis", "Coqueluche"]
     ],
+    seq: [
+      { t: "Coloração de Gram", items: ["Cristal violeta", "Lugol (mordente)", "Álcool-acetona (descoloração)", "Fucsina ou safranina (contracorante)"], e: "As Gram-positivas retêm o violeta; as Gram-negativas perdem e ficam rosadas." },
+      { t: "Ciclo de replicação viral", items: ["Adsorção", "Penetração", "Desnudamento", "Síntese de componentes", "Montagem", "Liberação"], e: "Os antivirais podem agir em cada uma dessas etapas." }
+    ],
     cases: [
       {
         title: "Febre e rigidez de nuca",
@@ -218,7 +234,7 @@ window.WORLDS = [
     ]
   },
   {
-    id: "pato",
+    id: "pato", cycle: "clinico",
     name: "Patologia",
     icon: "🔬",
     color: "#ec4899",
@@ -259,6 +275,10 @@ window.WORLDS = [
       ["Necrose fibrinoide", "Vasculites"],
       ["Gangrena seca", "Isquemia de membro"]
     ],
+    seq: [
+      { t: "Fases da cicatrização", items: ["Hemostasia", "Inflamação", "Proliferação (tecido de granulação)", "Remodelamento"], e: "O remodelamento troca colágeno III por colágeno I e pode durar meses." },
+      { t: "Sequência adenoma–carcinoma colorretal", items: ["Mucosa normal", "Adenoma", "Adenoma com displasia de alto grau", "Carcinoma in situ", "Carcinoma invasivo", "Metástase"], e: "É por isso que a colonoscopia com retirada de pólipos previne câncer." }
+    ],
     cases: [
       {
         title: "Dor na panturrilha após o voo",
@@ -272,8 +292,8 @@ window.WORLDS = [
     ]
   },
   {
-    id: "clinica",
-    name: "Urgência & Clínica",
+    id: "clinica", cycle: "clinico",
+    name: "Urgência & Emergência",
     icon: "🚑",
     color: "#0ea5e9",
     desc: "Raciocínio clínico e emergência.",
@@ -312,6 +332,10 @@ window.WORLDS = [
       ["Respiração de Kussmaul", "Cetoacidose diabética"],
       ["Sinal de Babinski", "Lesão do neurônio motor superior"],
       ["Sinal de Kernig", "Irritação meníngea"]
+    ],
+    seq: [
+      { t: "Cadeia de sobrevivência na PCR fora do hospital", items: ["Reconhecer e acionar o socorro", "RCP imediata", "Desfibrilação rápida", "Suporte avançado", "Cuidados pós-PCR", "Recuperação"], e: "As compressões de qualidade e o choque precoce são o que mais salva vidas." },
+      { t: "Avaliação primária no trauma (ABCDE)", items: ["Via aérea e coluna cervical", "Respiração e ventilação", "Circulação e controle de hemorragias", "Disfunção neurológica", "Exposição e controle do ambiente"], e: "Em hemorragia exsanguinante, o controle do sangramento vem antes (XABCDE)." }
     ],
     cases: [
       {
