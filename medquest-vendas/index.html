@@ -1,0 +1,292 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MedQuest</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Estude medicina jogando: flashcards com repetição espaçada, quizzes, casos clínicos e simulações em 3D para fixar o conteúdo e chegar mais preparado às provas.">
+<meta name="theme-color" content="#080F1C">
+<meta property="og:title" content="MedQuest: estude medicina jogando">
+<meta property="og:description" content="Jogos, desafios e simulações em 3D para fixar o conteúdo da graduação em medicina.">
+<meta property="og:image" content="img/d-anat.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/vendas.css">
+
+<div class="offer-bar" id="offer-bar" hidden>
+  <div class="wrap"><span><b class="ob-long">Oferta de boas-vindas: </b>12 meses por <b data-price="annual-current">R$ 97</b></span><span class="ob-timer" aria-live="off"><span data-countdown>24:00:00</span></span><a href="#planos" class="ob-link">Ver oferta</a></div>
+</div>
+
+<header class="top" id="top">
+  <div class="wrap top-in">
+    <a class="logo" href="#inicio" aria-label="MedQuest, início">
+      <svg viewBox="0 0 40 44" width="26" height="29" aria-hidden="true"><path d="M20 2 37 8v13c0 10-7.5 18-17 21C10.5 39 3 31 3 21V8z" fill="var(--accent)"/><path d="M20 6 33 10.6V21c0 7.8-5.6 14.2-13 16.8C12.6 35.2 7 28.8 7 21V10.6z" fill="var(--bg)"/><path d="M17 13h6v6h6v6h-6v6h-6v-6h-6v-6h6z" fill="var(--accent)"/></svg>
+      <span>MedQuest</span>
+    </a>
+    <nav class="nav" aria-label="Seções">
+      <a href="#recursos">Recursos</a><a href="#lab">MedQuest Lab</a><a href="#experimente">Experimente</a><a href="#disciplinas">Disciplinas</a><a href="#planos">Planos</a><a href="#faq">Dúvidas</a>
+    </nav>
+    <a class="btn btn-sm" href="#planos" data-cta="topo">Começar</a>
+  </div>
+</header>
+
+<main>
+<!-- 01 · HERO -->
+<section class="hero" id="inicio">
+  <div class="wrap hero-in">
+    <div class="hero-copy">
+      <span class="eyebrow">A nova geração de estudos em medicina</span>
+      <h1><span class="hl">Estude medicina jogando</span> e fixe conteúdos complexos com muito mais facilidade.</h1>
+      <p class="lead">Transforme suas matérias em jogos, desafios interativos e simulações médicas em 3D para memorizar conteúdos, otimizar seus estudos e chegar mais preparado às provas.</p>
+      <div class="cta-group">
+        <a class="btn btn-lg" href="#planos" data-cta="hero">Quero estudar jogando</a>
+        <p class="micro">Acesso imediato <i>•</i> Estude de onde estiver <i>•</i> Garantia de 7 dias</p>
+      </div>
+    </div>
+    <div class="hero-visual" aria-label="Telas reais do aplicativo MedQuest">
+      <div class="laptop">
+        <div class="laptop-screen">
+          <div class="slides" id="hero-slides">
+            <img src="img/d-anat.webp" alt="Anatomia 3D: atlas com sistemas, modelo do corpo e painel de detalhes" class="on" width="1600" height="1000" fetchpriority="high">
+            <img src="img/d-home.webp" alt="Tela inicial com nível, missões do dia e matérias" width="1600" height="1000" loading="lazy">
+            <img src="img/d-err.webp" alt="Simulador Encontre o erro em uma UTI virtual" width="1600" height="1000" loading="lazy">
+            <img src="img/d-micro.webp" alt="Laboratório virtual com microscópio" width="1600" height="1000" loading="lazy">
+          </div>
+        </div>
+        <div class="laptop-base"></div>
+      </div>
+      <div class="phone ph-a"><img src="img/p-home.webp" alt="Tela inicial no celular com XP, meta diária e Tutor IA" width="780" height="1688"></div>
+      <div class="phone ph-b"><img src="img/p-quiz.webp" alt="Questão interativa respondida corretamente" width="780" height="1688" loading="lazy"></div>
+      <div class="float f-xp"><b>+10 XP</b><span>Resposta correta</span></div>
+      <div class="float f-prog"><svg viewBox="0 0 36 36" width="38" height="38" aria-hidden="true"><circle cx="18" cy="18" r="15" class="ring-bg"/><circle cx="18" cy="18" r="15" class="ring-fg" style="--p:72"/></svg><span><b>Cardiologia</b><small>72% das fases</small></span></div>
+      <div class="float f-medal"><svg viewBox="0 0 40 46" width="22" height="25" aria-hidden="true"><path d="M20 2 37 8v13c0 10-7.5 18-17 22C10.5 39 3 31 3 21V8z" fill="var(--accent)"/><path d="M20 12l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z" fill="var(--bg)"/></svg><span>Medalha desbloqueada</span></div>
+      <div class="slide-tabs" role="tablist" aria-label="Telas do computador">
+        <button role="tab" class="on" data-slide="0">Anatomia 3D</button><button role="tab" data-slide="1">Início</button><button role="tab" data-slide="2">Simuladores</button><button role="tab" data-slide="3">Laboratório</button>
+      </div>
+    </div>
+  </div>
+  <p class="wrap shots-note">Telas reais do aplicativo, com dados de exemplo.</p>
+</section>
+
+<!-- 02 · PRODUTO -->
+<section class="sec" id="recursos">
+  <div class="wrap">
+    <header class="sec-h">
+      <h2>Sua rotina de estudos acaba de ganhar uma nova dimensão.</h2>
+      <p>Conheça o MedQuest, a plataforma que transforma conteúdos complexos de medicina em experiências interativas de aprendizado.</p>
+    </header>
+    <div class="bento">
+      <article class="b-card b-wide"><div class="b-txt"><h3>Jogos de anatomia</h3><p>Identifique órgãos, músculos, ossos e estruturas anatômicas através de desafios interativos.</p></div><div class="b-img"><img src="img/d-anat-loc.webp" alt="Desafio Localize a estrutura no modelo 3D" loading="lazy" width="1600" height="1000" style="object-position:30% 30%"></div></article>
+      <article class="b-card b-tall"><div class="b-txt"><h3>Desafios por disciplinas</h3><p>Teste seus conhecimentos em diferentes matérias da graduação e descubra quais conteúdos precisa reforçar.</p></div><div class="b-img ph-crop"><img src="img/p-world.webp" alt="Trilha de fases da Cardiologia" loading="lazy" width="780" height="1688"></div></article>
+      <article class="b-card"><div class="b-txt"><h3>Flashcards inteligentes</h3><p>Memorize conceitos importantes através da recuperação ativa e da repetição espaçada.</p></div><div class="b-img ph-crop"><img src="img/p-flash.webp" alt="Flashcard virado com botões Errei, Difícil, Bom e Fácil" loading="lazy" width="780" height="1688" style="object-position:50% 30%"></div></article>
+      <article class="b-card"><div class="b-txt"><h3>Jogos de associação</h3><p>Relacione estruturas, funções, doenças e conceitos médicos de maneira dinâmica.</p></div><div class="b-img ph-crop"><img src="img/p-pairs.webp" alt="Jogo Ligue os pares de Farmacologia" loading="lazy" width="780" height="1688" style="object-position:50% 25%"></div></article>
+      <article class="b-card"><div class="b-txt"><h3>Missões de estudo</h3><p>Complete desafios diários, acumule experiência e mantenha uma rotina de revisão.</p></div><div class="b-img"><img src="img/d-home.webp" alt="Missões de hoje com barras de progresso" loading="lazy" width="1600" height="1000" style="object-position:100% 45%"></div></article>
+      <article class="b-card"><div class="b-txt"><h3>Revisão personalizada</h3><p>Identifique suas dificuldades e pratique novamente os conteúdos em que errou.</p></div><div class="b-img ph-crop"><img src="img/p-review.webp" alt="Tela de revisão com cards do dia e caderno de erros" loading="lazy" width="780" height="1688" style="object-position:50% 12%"></div></article>
+      <article class="b-card b-wide"><div class="b-txt"><h3>Casos clínicos interativos</h3><p>Investigue situações fictícias, interprete informações e desenvolva seu raciocínio clínico.</p></div><div class="b-img"><img src="img/d-ward.webp" alt="Plantão virtual com monitor de sinais vitais e anamnese" loading="lazy" width="1600" height="1000" style="object-position:20% 40%"></div></article>
+      <article class="b-card b-xp"><div class="b-txt"><h3>Sistema de evolução</h3><p>Ganhe XP, conquiste medalhas, suba de nível e acompanhe seu progresso acadêmico.</p></div>
+        <div class="xp-demo" aria-hidden="true">
+          <div class="xp-row"><span class="lvl-chip">Nv 8</span><div class="xp-bar"><i></i></div><b class="xp-num">+200 XP</b></div>
+          <div class="xp-medals"><span class="sh on"></span><span class="sh on"></span><span class="sh"></span><span class="sh"></span></div>
+        </div>
+        <div class="b-img ph-crop"><img src="img/p-medals.webp" alt="Medalhas com níveis bronze, prata e ouro" loading="lazy" width="780" height="1688" style="object-position:50% 30%"></div></article>
+    </div>
+  </div>
+</section>
+
+<!-- 03 · LAB -->
+<section class="lab" id="lab">
+  <div class="wrap">
+    <header class="sec-h">
+      <span class="eyebrow">MedQuest Lab — Simulações interativas</span>
+      <h2>Não fique apenas na teoria. Experimente a medicina em ambientes virtuais.</h2>
+      <p>Explore estruturas anatômicas, investigue casos clínicos, identifique erros e participe de simulações educacionais em 3D.</p>
+    </header>
+    <div class="lab-feature">
+      <div class="lf-media" id="lab-3d">
+        <video src="video/anat.mp4" poster="video/anat-poster.webp" muted loop playsinline preload="none" data-autoplay aria-label="Gravação do modelo 3D girando e mostrando o coração"></video>
+        <div class="lf-live" hidden><iframe title="Anatomia 3D do MedQuest" loading="lazy"></iframe></div>
+        <div class="lf-actions"><button class="btn btn-ghost btn-sm" id="open-3d" type="button">Girar o modelo 3D aqui</button><a class="lf-link" href="app/index.html#demo-anat" target="_blank" rel="noopener">Abrir em tela cheia</a></div>
+      </div>
+      <div class="lf-copy">
+        <h3>Anatomia interativa 3D</h3>
+        <p>Explore o corpo humano, visualize sistemas e identifique estruturas anatômicas de diferentes ângulos.</p>
+        <ul class="ticks small">
+          <li>10 sistemas e 71 estruturas, com camadas de pele e músculos</li>
+          <li>Miniaturas, função e relevância clínica de cada estrutura</li>
+          <li>Modos Localize, Qual é a estrutura, Monte o sistema e Desafio cronometrado</li>
+        </ul>
+      </div>
+    </div>
+    <div class="sims">
+      <article class="sim"><div class="sim-img"><video src="video/err.mp4" poster="video/err-poster.webp" muted loop playsinline preload="none" data-autoplay aria-label="Gravação de uma enfermaria virtual em primeira pessoa"></video></div><div class="sim-txt"><h3>Encontre o erro</h3><p>Explore ambientes hospitalares virtuais e identifique situações incorretas.</p><small>7 ambientes: centro cirúrgico, enfermaria, UTI, pronto-socorro, laboratório, consultório e sala de procedimentos</small></div></article>
+      <article class="sim"><div class="sim-img"><img src="img/d-ward.webp" alt="Plantão virtual com paciente no leito e monitor" loading="lazy" width="1600" height="1000"></div><div class="sim-txt"><h3>Plantão virtual</h3><p>Investigue casos fictícios, analise informações clínicas e responda aos desafios apresentados.</p><small>7 casos com anamnese, exame físico, exames, hipótese e conduta</small></div></article>
+      <article class="sim"><div class="sim-img"><img src="img/d-micro.webp" alt="Laboratório de microscopia com telão" loading="lazy" width="1600" height="1000"></div><div class="sim-txt"><h3>Laboratório virtual</h3><p>Explore lâminas, tecidos, células e conceitos microscópicos em experiências interativas.</p><small>Objetivas de 4x a 100x, foco, luz e óleo de imersão; lâminas ilustrativas</small></div></article>
+      <article class="sim"><div class="sim-img"><img src="img/d-instr.webp" alt="Mesa com instrumentos cirúrgicos em 3D" loading="lazy" width="1600" height="1000"></div><div class="sim-txt"><h3>Instrumentos cirúrgicos</h3><p>Reconheça instrumentos e conceitos relacionados ao ambiente cirúrgico.</p><small>17 instrumentos, montagem da mesa e checklist de cirurgia segura</small></div></article>
+      <article class="sim"><div class="sim-img"><img src="img/d-osce.webp" alt="Estação OSCE de exame físico do abdome" loading="lazy" width="1600" height="1000"></div><div class="sim-txt"><h3>Simulados práticos</h3><p>Complete estações virtuais inspiradas em avaliações práticas da graduação.</p><small>8 estações no formato OSCE, com tempo e checklist</small></div></article>
+      <article class="sim"><div class="sim-img"><img src="img/d-err-cc.webp" alt="Centro cirúrgico virtual com equipe paramentada" loading="lazy" width="1600" height="1000"></div><div class="sim-txt"><h3>Três níveis de dificuldade</h3><p>Do iniciante ao avançado, cada simulação muda de complexidade, de tempo e de pistas.</p><small>Os erros viram cards de revisão automaticamente</small></div></article>
+    </div>
+    <p class="note">As simulações são recursos educacionais complementares, com casos fictícios e modelos esquemáticos. Elas não substituem aulas práticas nem o treinamento clínico supervisionado.</p>
+    <div class="center"><a class="btn btn-lg" href="#planos" data-cta="lab">Quero explorar o MedQuest</a></div>
+  </div>
+</section>
+
+<!-- 04 · IDENTIFICAÇÃO -->
+<section class="sec" id="para-quem">
+  <div class="wrap">
+    <header class="sec-h"><h2>O MedQuest foi feito para você que:</h2></header>
+    <ul class="ident">
+      <li>Passa horas estudando e tem dificuldade para lembrar o conteúdo.</li>
+      <li>Sente-se sobrecarregado com a quantidade de matérias da medicina.</li>
+      <li>Precisa revisar muitos conteúdos antes das provas.</li>
+      <li>Tem dificuldade para memorizar estruturas e nomenclaturas.</li>
+      <li>Quer desenvolver seu raciocínio através de situações simuladas.</li>
+      <li>Cansou de estudar apenas através de livros, slides e apostilas.</li>
+      <li>Busca uma maneira mais dinâmica de aprender.</li>
+      <li>Quer aproveitar melhor seu tempo de estudo.</li>
+      <li>Deseja acompanhar sua evolução durante a graduação.</li>
+    </ul>
+    <p class="closing">Estudar medicina já é desafiador. Sua forma de estudar não precisa tornar tudo ainda mais complicado.</p>
+  </div>
+</section>
+
+<!-- 05 · FACILIDADE -->
+<section class="sec alt" id="como-funciona">
+  <div class="wrap">
+    <header class="sec-h"><h2>Estudar medicina ficou muito mais intuitivo.</h2></header>
+    <ol class="steps">
+      <li><div class="phone sm"><img src="img/p-subjects.webp" alt="Cartões de matérias do semestre com barras de progresso" loading="lazy" width="780" height="1688"></div><span class="st-n">01</span><h3>Escolha sua disciplina</h3><p>Selecione o conteúdo que deseja estudar. O app já mostra as matérias do seu semestre.</p></li>
+      <li><div class="phone sm"><img src="img/p-quiz-q.webp" alt="Questão de Cardiologia com quatro alternativas" loading="lazy" width="780" height="1688"></div><span class="st-n">02</span><h3>Comece a jogar</h3><p>Complete desafios, explore simulações e teste seus conhecimentos.</p></li>
+      <li><div class="phone sm"><img src="img/p-result.webp" alt="Tela de conclusão com três estrelas, acertos e XP ganho" loading="lazy" width="780" height="1688"></div><span class="st-n">03</span><h3>Evolua a cada desafio</h3><p>Ganhe experiência, revise seus erros e acompanhe seu progresso.</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 06 · EXPERIMENTE -->
+<section class="sec" id="experimente">
+  <div class="wrap narrow">
+    <header class="sec-h"><h2>Será que você consegue acertar?</h2><p>Três questões de anatomia do banco do MedQuest. Responda e veja a explicação.</p></header>
+    <div class="quiz" id="quiz" aria-live="polite">
+      <div class="qz-top"><span class="qz-tag">Anatomia</span><span class="qz-count" id="qz-count">1 de 3</span><div class="qz-xp"><span class="lvl-chip">XP</span><div class="xp-bar"><i id="qz-bar"></i></div><b id="qz-xp">0</b></div></div>
+      <div id="qz-body"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 07 · DISCIPLINAS -->
+<section class="sec alt" id="disciplinas">
+  <div class="wrap">
+    <header class="sec-h"><h2>Diversas disciplinas da medicina em uma única plataforma.</h2><p><b id="disc-total">28 disciplinas</b> e <b id="item-total">1.762 itens de estudo</b> entre flashcards, questões, pares, sequências e casos clínicos. Toque em uma disciplina para ver os modos de jogo.</p></header>
+    <div class="seg" role="tablist" aria-label="Filtrar por ciclo"><button class="on" data-cyc="all" role="tab">Todas</button><button data-cyc="basico" role="tab">Ciclo básico</button><button data-cyc="clinico" role="tab">Ciclo clínico</button></div>
+    <div class="disc-grid" id="disc-grid"></div>
+    <div class="disc-detail" id="disc-detail" hidden></div>
+  </div>
+</section>
+
+<!-- 08 · DEPOIMENTOS (oculta sem depoimentos reais) -->
+<section class="sec" id="depoimentos" hidden>
+  <div class="wrap"><header class="sec-h"><h2>Estudantes que estão transformando sua rotina de estudos.</h2></header></div>
+  <div class="marquee" id="marquee" tabindex="0" aria-label="Depoimentos de estudantes">
+    <div class="mq-track" id="mq-track"></div>
+  </div>
+  <div class="wrap center"><button class="btn btn-ghost btn-sm" id="mq-pause" type="button" aria-pressed="false">Pausar</button></div>
+</section>
+
+<!-- 09 · BÔNUS -->
+<section class="sec" id="bonus">
+  <div class="wrap">
+    <header class="sec-h"><h2>Sua experiência de aprendizado vai ainda mais longe.</h2><p>Recursos incluídos no plano anual, já disponíveis dentro do app.</p></header>
+    <div class="bonus-grid" id="bonus-grid"></div>
+  </div>
+</section>
+
+<!-- 10 e 11 · PLANOS E OFERTA -->
+<section class="sec pricing" id="planos">
+  <div class="wrap">
+    <header class="sec-h"><h2>Comece hoje uma nova forma de estudar medicina.</h2><p>Escolha o plano ideal para sua rotina e desbloqueie sua experiência no MedQuest.</p></header>
+    <div class="offer" id="offer-box" hidden>
+      <div><span class="eyebrow">Oferta exclusiva de boas-vindas</span><p>Garanta 12 meses de acesso por <b data-price="annual-promo">R$ 97</b> antes que sua oferta expire.</p></div>
+      <div class="countdown" role="timer" aria-label="Tempo restante da oferta"><div><b data-cd="h">23</b><small>horas</small></div><div><b data-cd="m">59</b><small>minutos</small></div><div><b data-cd="s">59</b><small>segundos</small></div></div>
+    </div>
+    <div class="plans">
+      <article class="plan" id="plan-monthly">
+        <h3>Plano mensal</h3>
+        <p class="price"><b data-price="monthly">R$ 29,90</b><span>/mês</span></p>
+        <p class="price-sub">Cobrança mensal recorrente</p>
+        <ul class="ticks">
+          <li>Acesso ao MedQuest</li><li>Jogos interativos</li><li>Disciplinas disponíveis</li><li>Flashcards inteligentes</li><li>Desafios de conhecimento</li><li>Simuladores práticos disponíveis</li><li>Sistema de evolução</li><li>Atualizações durante a assinatura</li>
+        </ul>
+        <a class="btn btn-ghost btn-block" href="#planos" data-checkout="monthly">Escolher plano mensal</a>
+        <p class="terms" data-terms="monthly"></p>
+      </article>
+      <article class="plan best" id="plan-annual">
+        <span class="badge">Melhor custo-benefício</span>
+        <h3>Plano anual</h3>
+        <p class="price-old" data-show="promo">De <s data-price="annual-regular">R$ 127,00</s> por</p>
+        <p class="price"><b data-price="annual-current">R$ 97,00</b><span>/ano</span></p>
+        <p class="price-sub">Equivale a <b data-price="annual-month">R$ 8,08</b> por mês, com cobrança anual</p>
+        <p class="save">Economize <b data-save>73%</b> em comparação com 12 mensalidades</p>
+        <ul class="ticks">
+          <li>12 meses de acesso ao MedQuest</li><li>Todas as funcionalidades disponíveis</li><li>Jogos e desafios</li><li>MedQuest Lab</li><li>Simulações médicas interativas</li><li>Flashcards e revisões</li><li>Atualizações durante a assinatura</li><li>Todos os bônus disponíveis</li>
+        </ul>
+        <a class="btn btn-block" href="#planos" data-checkout="annual"><span data-cta-annual>Quero garantir meu acesso anual</span></a>
+        <p class="terms" data-terms="annual"></p>
+      </article>
+    </div>
+    <p class="pay-note">Pagamento processado pela plataforma de pagamento parceira. Você recebe o acesso no e-mail informado assim que o pagamento for confirmado.</p>
+  </div>
+</section>
+
+<!-- 12 · GARANTIA -->
+<section class="sec" id="garantia">
+  <div class="wrap guarantee">
+    <svg class="seal" viewBox="0 0 160 160" width="150" height="150" role="img" aria-label="Selo de garantia de 7 dias">
+      <defs><path id="sealtxt" d="M80 80m-58 0a58 58 0 1 1 116 0a58 58 0 1 1-116 0"/></defs>
+      <circle cx="80" cy="80" r="76" fill="none" stroke="var(--line)" stroke-width="1.5"/>
+      <circle cx="80" cy="80" r="66" fill="var(--bg2)" stroke="var(--accent)" stroke-width="2"/>
+      <text font-family="Plus Jakarta Sans, Inter, sans-serif" font-size="10.5" font-weight="700" letter-spacing="3.2" fill="var(--muted)"><textPath href="#sealtxt">GARANTIA DE SATISFAÇÃO • MEDQUEST • 7 DIAS •</textPath></text>
+      <text x="80" y="86" text-anchor="middle" font-family="Plus Jakarta Sans, Inter, sans-serif" font-size="44" font-weight="800" fill="var(--fg)">7</text>
+      <text x="80" y="104" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" font-weight="600" letter-spacing="2" fill="var(--accent)">DIAS</text>
+    </svg>
+    <div>
+      <h2>Conheça o MedQuest sem preocupações.</h2>
+      <p>Você terá 7 dias para explorar a plataforma, experimentar os jogos e conhecer uma nova forma de estudar medicina.</p>
+      <p>Caso não fique satisfeito, poderá solicitar o reembolso dentro do período de garantia, conforme as condições informadas na contratação.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 13 · FAQ -->
+<section class="sec alt" id="faq">
+  <div class="wrap narrow">
+    <header class="sec-h"><h2>Perguntas frequentes</h2></header>
+    <div class="faq" id="faq-list"></div>
+  </div>
+</section>
+
+<!-- 14 · CTA FINAL -->
+<section class="final">
+  <div class="wrap center">
+    <h2>Transforme seu próximo momento de estudo em uma experiência completamente diferente.</h2>
+    <p>Explore, jogue, revise e evolua com o MedQuest.</p>
+    <a class="btn btn-lg" href="#planos" data-cta="final">Quero estudar jogando</a>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div><a class="logo" href="#inicio"><span>MedQuest</span></a><p class="small" data-company></p></div>
+    <nav aria-label="Informações"><a href="privacidade.html" class="keep-utm">Política de privacidade</a><a href="termos.html" class="keep-utm">Termos de uso</a><a href="#suporte">Suporte</a></nav>
+    <div id="suporte" class="small"><b>Suporte</b><br><span data-support-email></span><br><span data-support-hours></span></div>
+  </div>
+  <p class="wrap small disclaimer">Conteúdo educacional para estudantes de medicina. Não substitui aulas, preceptoria nem orientação profissional, e não deve ser usado para decisões sobre pacientes reais. Casos clínicos fictícios.</p>
+</footer>
+
+<div class="sticky-cta" id="sticky-cta" hidden><span><b data-price="annual-current">R$ 97</b> por 12 meses</span><a class="btn btn-sm" href="#planos" data-cta="fixo">Quero estudar jogando</a></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="js/config.js"></script>
+<script src="js/disciplinas.js"></script>
+<script src="js/tracking.js"></script>
+<script src="js/offer.js"></script>
+<script src="js/vendas.js"></script>

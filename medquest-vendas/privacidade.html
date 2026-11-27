@@ -1,0 +1,31 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800\&family=Inter:wght@400;500;600\&display=swap">
+<link rel="stylesheet" href="css/vendas.css"><link rel="stylesheet" href="css/pages.css">
+<title>Privacidade MedQuest</title>
+<header class="top-simple"><div class="wrap"><a class="logo keep-utm" href="index.html"><svg viewBox="0 0 40 44" width="24" height="27" aria-hidden="true"><path d="M20 2 37 8v13c0 10-7.5 18-17 21C10.5 39 3 31 3 21V8z" fill="var(--accent)"/><path d="M20 6 33 10.6V21c0 7.8-5.6 14.2-13 16.8C12.6 35.2 7 28.8 7 21V10.6z" fill="var(--bg)"/><path d="M17 13h6v6h6v6h-6v6h-6v-6h-6v-6h6z" fill="var(--accent)"/></svg><span>MedQuest</span></a></div></header>
+<main class="wrap page">
+  <h1>Política de privacidade</h1>
+  <p class="small">Última atualização: <span id="upd">novembro de 2026</span>. Responsável: <span data-company></span>.</p>
+  <p>Esta política explica quais dados o MedQuest coleta na página de vendas e no aplicativo, para que são usados e quais são os seus direitos, de acordo com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018).</p>
+  <h2>1. Dados coletados na página de vendas</h2>
+  <ul>
+    <li><b>Identificador anônimo:</b> um código aleatório salvo no seu navegador (armazenamento local e cookie próprio) para registrar a data da primeira visita e calcular a oferta de boas-vindas. Não usamos impressão digital do aparelho nem técnicas de identificação invasivas.</li>
+    <li><b>Origem da visita:</b> parâmetros de campanha (UTM) presentes no link que você acessou.</li>
+    <li><b>Pedidos:</b> plano escolhido, valor e situação do pagamento, informados pela plataforma de pagamento. O e-mail é guardado apenas em forma de código (hash) para vincular a oferta à sua conta.</li>
+    <li><b>Ferramentas de medição:</b> quando ativadas, o Meta Pixel e a UTMify usam cookies para medir visitas e compras vindas de anúncios.</li>
+  </ul>
+  <h2>2. Dados no aplicativo</h2>
+  <p>O progresso de estudo (XP, fases, revisões, erros e materiais enviados) fica salvo no próprio aparelho. Arquivos que você envia para gerar jogos são processados no navegador. Recursos online opcionais, como ranking e batalhas, usam apenas apelido, avatar e pontuação.</p>
+  <h2>3. Para que usamos</h2>
+  <ul><li>Liberar e manter o seu acesso.</li><li>Aplicar a oferta de boas-vindas de forma justa.</li><li>Atender solicitações de suporte e reembolso.</li><li>Medir o desempenho das campanhas.</li></ul>
+  <h2>4. Compartilhamento</h2>
+  <p>Compartilhamos dados apenas com a plataforma de pagamento, com provedores de hospedagem e, quando ativadas, com as ferramentas de medição citadas. Não vendemos dados pessoais.</p>
+  <h2>5. Seus direitos</h2>
+  <p>Você pode pedir acesso, correção, exclusão ou portabilidade dos seus dados e revogar consentimentos pelo e-mail <b data-support-email></b>. Também pode apagar o identificador anônimo limpando os dados do site no navegador.</p>
+  <h2>6. Retenção e segurança</h2>
+  <p>Guardamos os dados pelo tempo necessário para as finalidades acima e para cumprir obrigações legais, com medidas de segurança adequadas.</p>
+</main>
+<script src="js/config.js"></script><script src="js/tracking.js"></script>
+<script>document.querySelectorAll("[data-company]").forEach(e=>e.textContent=MQ_CONFIG.company.name+" · "+MQ_CONFIG.company.doc);document.querySelectorAll("[data-support-email]").forEach(e=>e.textContent=MQ_CONFIG.support.email);</script>

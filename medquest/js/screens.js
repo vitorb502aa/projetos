@@ -242,6 +242,8 @@ function homeScreen() {
       <button onclick="go('simcfg')"><span>📝</span>Simulado</button>
       <button onclick="go('arena')"><span>⚔️</span>Arena</button>
       <button onclick="go('materials')"><span>📤</span>Meu material</button>
+      <button onclick="go('planner')"><span>📅</span>Planner</button>
+      <button onclick="go('guide')"><span>🧠</span>Guia de memorização</button>
     </div>
     <div class="tip">💡 ${esc(tip)}</div>
     <h2 class="sec">Matérias</h2>

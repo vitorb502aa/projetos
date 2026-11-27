@@ -1,0 +1,31 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800\&family=Inter:wght@400;500;600\&display=swap">
+<link rel="stylesheet" href="css/vendas.css"><link rel="stylesheet" href="css/pages.css">
+<title>Termos MedQuest</title>
+<header class="top-simple"><div class="wrap"><a class="logo keep-utm" href="index.html"><svg viewBox="0 0 40 44" width="24" height="27" aria-hidden="true"><path d="M20 2 37 8v13c0 10-7.5 18-17 21C10.5 39 3 31 3 21V8z" fill="var(--accent)"/><path d="M20 6 33 10.6V21c0 7.8-5.6 14.2-13 16.8C12.6 35.2 7 28.8 7 21V10.6z" fill="var(--bg)"/><path d="M17 13h6v6h6v6h-6v6h-6v-6h-6v-6h6z" fill="var(--accent)"/></svg><span>MedQuest</span></a></div></header>
+<main class="wrap page">
+  <h1>Termos de uso</h1>
+  <p class="small">Última atualização: novembro de 2026. Fornecedor: <span data-company></span>.</p>
+  <h2>1. O serviço</h2>
+  <p>O MedQuest é uma plataforma educacional de estudos gamificados para estudantes de medicina, com jogos, revisões, simulados e simulações interativas. O conteúdo tem finalidade exclusivamente educacional.</p>
+  <h2>2. Limites do conteúdo</h2>
+  <ul>
+    <li>Os casos clínicos são fictícios e os modelos 3D são esquemáticos.</li>
+    <li>As simulações complementam o estudo e não substituem aulas práticas, preceptoria nem treinamento clínico supervisionado, nem habilitam a realização de procedimentos.</li>
+    <li>O conteúdo não deve ser usado para diagnóstico, prescrição ou qualquer decisão sobre pacientes reais. Confira sempre as diretrizes e referências atualizadas.</li>
+  </ul>
+  <h2>3. Planos, cobrança e renovação</h2>
+  <p><b>Mensal:</b> <span data-t="monthly"></span></p>
+  <p><b>Anual:</b> <span data-t="annual"></span></p>
+  <p>A oferta de boas-vindas é individual, vale por 24 horas a partir do primeiro acesso à página de vendas e se aplica somente ao plano anual. Os preços podem mudar para novas contratações; mudanças para quem já assina são avisadas com antecedência antes da renovação.</p>
+  <h2>4. Garantia e reembolso</h2>
+  <p>Você pode solicitar o reembolso em até <span data-g></span> dias após a compra, pelo suporte ou pela plataforma de pagamento, conforme as condições informadas na contratação e o Código de Defesa do Consumidor.</p>
+  <h2>5. Uso da conta</h2>
+  <p>O acesso é pessoal e intransferível. É proibido revender, compartilhar o acesso ou copiar o conteúdo da plataforma.</p>
+  <h2>6. Contato</h2>
+  <p>Suporte: <b data-support-email></b>.</p>
+</main>
+<script src="js/config.js"></script><script src="js/tracking.js"></script>
+<script>const C=MQ_CONFIG;document.querySelectorAll("[data-company]").forEach(e=>e.textContent=C.company.name+" · "+C.company.doc);document.querySelectorAll("[data-support-email]").forEach(e=>e.textContent=C.support.email);document.querySelector('[data-t="monthly"]').textContent=C.terms.monthly;document.querySelector('[data-t="annual"]').textContent=C.terms.annual;document.querySelector("[data-g]").textContent=C.terms.guaranteeDays;</script>

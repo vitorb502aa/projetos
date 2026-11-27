@@ -1,0 +1,54 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800\&family=Inter:wght@400;500;600\&display=swap">
+<link rel="stylesheet" href="css/vendas.css"><link rel="stylesheet" href="css/pages.css">
+<title>Compra MedQuest</title>
+<meta name="robots" content="noindex">
+<header class="top-simple"><div class="wrap"><a class="logo keep-utm" href="index.html"><svg viewBox="0 0 40 44" width="24" height="27" aria-hidden="true"><path d="M20 2 37 8v13c0 10-7.5 18-17 21C10.5 39 3 31 3 21V8z" fill="var(--accent)"/><path d="M20 6 33 10.6V21c0 7.8-5.6 14.2-13 16.8C12.6 35.2 7 28.8 7 21V10.6z" fill="var(--bg)"/><path d="M17 13h6v6h6v6h-6v6h-6v-6h-6v-6h6z" fill="var(--accent)"/></svg><span>MedQuest</span></a></div></header>
+<main class="wrap page">
+  <h1>Obrigado por escolher o MedQuest!</h1>
+  <div class="card">
+    <span class="status wait" id="st"><i></i><span id="st-t">Confirmando o seu pagamento…</span></span>
+    <p id="msg">Assim que a plataforma de pagamento confirmar, você recebe no e-mail informado as instruções de acesso.</p>
+  </div>
+  <p class="small">Dúvidas? Fale com o suporte: <b id="sup"></b></p>
+</main>
+<script src="js/config.js"></script>
+<script src="js/tracking.js"></script>
+<script>
+/* O evento Purchase só é disparado depois que o servidor confirma o pagamento (webhook),
+   com eventID igual ao enviado pela API de Conversões, e uma única vez por pedido. */
+(function () {
+  const C = window.MQ_CONFIG, T = window.MQT;
+  document.getElementById("sup").textContent = C.support.email;
+  const q = new URLSearchParams(location.search), last = T.store.get("mq_last_order") || {};
+  const ref = q.get("ref") || q.get(C.refParam || "sck") || last.ref;
+  const st = document.getElementById("st"), stt = document.getElementById("st-t"), msg = document.getElementById("msg");
+  if (!ref) { stt.textContent = "Não encontramos o código do pedido."; st.className = "status"; return; }
+  let tries = 0;
+  async function check() {
+    tries++;
+    try {
+      const r = await fetch((C.apiBase || "") + "/api/order?ref=" + encodeURIComponent(ref), { cache: "no-store" });
+      const j = r.ok ? await r.json() : null;
+      if (j && j.status === "pago") {
+        st.className = "status ok"; stt.textContent = "Pagamento confirmado!";
+        msg.textContent = "Enviamos as instruções de acesso para o seu e-mail. Confira também a caixa de spam e promoções.";
+        const key = "mq_purchase_" + ref;
+        let done = false; try { done = !!localStorage.getItem(key); } catch (e) {}
+        if (!done && !j.clientFired) {
+          T.track("Purchase", { value: j.value, currency: j.currency || "BRL", content_ids: [j.plan], content_type: "product" }, { eventID: j.eventID });
+          try { localStorage.setItem(key, "1"); } catch (e) {}
+          fetch((C.apiBase || "") + "/api/order/ack", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ref }) }).catch(() => {});
+        }
+        return;
+      }
+      if (j && j.status === "reembolsado") { st.className = "status"; stt.textContent = "Pedido reembolsado."; return; }
+    } catch (e) { /* tenta de novo */ }
+    if (tries < 40) setTimeout(check, tries < 10 ? 3000 : 10000);
+    else { stt.textContent = "Ainda aguardando a confirmação."; msg.textContent = "Pagamentos por boleto ou Pix podem levar mais tempo. Você receberá um e-mail quando for confirmado."; }
+  }
+  check();
+})();
+</script>

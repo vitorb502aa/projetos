@@ -24,35 +24,35 @@ const MIC = {
   dots(g, n, S, R, f) { for (let i = 0; i < n; i++) f((R() * 2 - 1) * S, (R() * 2 - 1) * S, i); }
 };
 const SLIDES = [
-  { id: "sangue", n: "Esfregaço de sangue periférico normal", stain: "Leishman", disc: "pato", mag: 40, cat: "hemato",
+  { id: "sangue", S: 32, n: "Esfregaço de sangue periférico normal", stain: "Leishman", disc: "pato", mag: 40, cat: "hemato",
     find: "Hemácias com palidez central, um neutrófilo segmentado, um linfócito pequeno e plaquetas.",
     draw(g, S, R) { MIC.dots(g, 260, S, R, (x, y) => MIC.rbc(g, x, y, 3.8, R)); MIC.neutro(g, -12, 8, 6.5, R); MIC.lympho(g, 20, -14, 4.6); g.fillStyle = "#7b4ea3"; MIC.dots(g, 30, S, R, (x, y) => { g.beginPath(); g.arc(x, y, 0.9, 0, 7); g.fill(); }); } },
-  { id: "falciforme", n: "Anemia falciforme (drepanócitos)", stain: "Leishman", disc: "pato", mag: 40, cat: "hemato",
+  { id: "falciforme", S: 32, n: "Anemia falciforme (drepanócitos)", stain: "Leishman", disc: "pato", mag: 40, cat: "hemato",
     find: "Hemácias em forma de foice (drepanócitos) entre hemácias normais e em alvo.",
     draw(g, S, R) { MIC.dots(g, 200, S, R, (x, y, i) => (i % 3 === 0 ? MIC.sickle(g, x, y, 4.2, R) : MIC.rbc(g, x, y, 3.7, R))); } },
-  { id: "malaria", n: "Malária: Plasmodium falciparum (trofozoítos em anel)", stain: "Giemsa", disc: "micro", mag: 100, cat: "parasito",
+  { id: "malaria", S: 22, n: "Malária: Plasmodium falciparum (trofozoítos em anel)", stain: "Giemsa", disc: "micro", mag: 100, cat: "parasito",
     find: "Hemácias com anéis finos de cromatina (aspecto de anel de sinete), alguns com dupla cromatina.",
     draw(g, S, R) { MIC.dots(g, 240, S, R, (x, y, i) => { MIC.rbc(g, x, y, 3.8, R, { pale: "#f1c9c4", mid: "#e19a94", edge: "#cf7a75" }); if (i % 6 === 0) { g.strokeStyle = "#4b2a8a"; g.lineWidth = 0.45; g.beginPath(); g.arc(x + 0.6, y, 1.3, 0, 7); g.stroke(); g.fillStyle = "#8b1d5c"; g.beginPath(); g.arc(x + 1.9, y - 0.2, 0.45, 0, 7); g.fill(); } }); } },
-  { id: "gram_pos", n: "Cocos Gram-positivos em cachos (sugere Staphylococcus)", stain: "Gram", disc: "micro", mag: 100, cat: "bacterio",
+  { id: "gram_pos", S: 9, n: "Cocos Gram-positivos em cachos (sugere Staphylococcus)", stain: "Gram", disc: "micro", mag: 100, cat: "bacterio",
     find: "Cocos roxos (retêm o cristal violeta) agrupados em cachos irregulares.",
     bg: "#f4d7de",
     draw(g, S, R) { for (let c = 0; c < 28; c++) { const cx = (R() * 2 - 1) * S, cy = (R() * 2 - 1) * S; for (let i = 0; i < 9; i++) { g.fillStyle = "#3d1a6e"; g.beginPath(); g.arc(cx + (R() - 0.5) * 3.2, cy + (R() - 0.5) * 3.2, 0.5, 0, 7); g.fill(); } } } },
-  { id: "gram_neg", n: "Bacilos Gram-negativos (sugere enterobactéria)", stain: "Gram", disc: "micro", mag: 100, cat: "bacterio",
+  { id: "gram_neg", S: 14, n: "Bacilos Gram-negativos (sugere enterobactéria)", stain: "Gram", disc: "micro", mag: 100, cat: "bacterio",
     find: "Bastonetes curtos rosados/vermelhos (safranina), isolados.", bg: "#f6e2e6",
     draw(g, S, R) { g.lineCap = "round"; MIC.dots(g, 220, S, R, (x, y) => { const a = R() * Math.PI; g.strokeStyle = "#c2335a"; g.lineWidth = 0.9; g.beginPath(); g.moveTo(x - Math.cos(a) * 1.1, y - Math.sin(a) * 1.1); g.lineTo(x + Math.cos(a) * 1.1, y + Math.sin(a) * 1.1); g.stroke(); }); } },
-  { id: "neisseria", n: "Diplococos Gram-negativos intracelulares (sugere Neisseria)", stain: "Gram", disc: "micro", mag: 100, cat: "bacterio",
+  { id: "neisseria", S: 22, n: "Diplococos Gram-negativos intracelulares (sugere Neisseria)", stain: "Gram", disc: "micro", mag: 100, cat: "bacterio",
     find: "Pares de cocos em forma de rim dentro de neutrófilos.", bg: "#f6e2e6",
     draw(g, S, R) { for (let k = 0; k < 7; k++) { const x = (R() * 2 - 1) * S * 0.8, y = (R() * 2 - 1) * S * 0.8; g.fillStyle = "#f0c3cf"; g.beginPath(); g.arc(x, y, 7, 0, 7); g.fill(); g.fillStyle = "#b04a7a"; g.beginPath(); g.ellipse(x - 2, y + 1, 2.4, 1.6, 0.4, 0, 7); g.fill(); for (let i = 0; i < 6; i++) { const px = x + (R() - 0.5) * 8, py = y + (R() - 0.5) * 8; g.fillStyle = "#c2335a"; g.beginPath(); g.ellipse(px - 0.45, py, 0.42, 0.55, 0, 0, 7); g.ellipse(px + 0.45, py, 0.42, 0.55, 0, 0, 7); g.fill(); } } } },
-  { id: "baar", n: "Bacilos álcool-ácido resistentes (BAAR)", stain: "Ziehl-Neelsen", disc: "micro", mag: 100, cat: "bacterio",
+  { id: "baar", S: 16, n: "Bacilos álcool-ácido resistentes (BAAR)", stain: "Ziehl-Neelsen", disc: "micro", mag: 100, cat: "bacterio",
     find: "Bacilos finos vermelhos (fucsina) sobre fundo azul (azul de metileno), às vezes em agrupamentos.", bg: "#b9cdea",
     draw(g, S, R) { g.lineCap = "round"; MIC.dots(g, 46, S, R, (x, y) => { const a = R() * Math.PI; g.strokeStyle = "#d1123f"; g.lineWidth = 0.45; g.beginPath(); g.moveTo(x - Math.cos(a) * 1.6, y - Math.sin(a) * 1.6); g.quadraticCurveTo(x, y + 0.4, x + Math.cos(a) * 1.6, y + Math.sin(a) * 1.6); g.stroke(); }); g.fillStyle = "rgba(40,70,150,.35)"; MIC.dots(g, 30, S, R, (x, y) => { g.beginPath(); g.arc(x, y, 4, 0, 7); g.fill(); }); } },
-  { id: "candida", n: "Leveduras com pseudo-hifas (sugere Candida)", stain: "Gram", disc: "micro", mag: 40, cat: "fungo",
+  { id: "candida", S: 40, n: "Leveduras com pseudo-hifas (sugere Candida)", stain: "Gram", disc: "micro", mag: 40, cat: "fungo",
     find: "Células ovais roxas em brotamento e filamentos segmentados (pseudo-hifas).", bg: "#f2dbe2",
     draw(g, S, R) { g.fillStyle = "#4a2384"; MIC.dots(g, 90, S, R, (x, y) => { g.beginPath(); g.ellipse(x, y, 2.2, 1.6, R() * 3, 0, 7); g.fill(); if (R() < 0.4) { g.beginPath(); g.ellipse(x + 2.4, y, 1.2, 0.9, 0, 0, 7); g.fill(); } }); g.strokeStyle = "#4a2384"; g.lineWidth = 1.3; for (let k = 0; k < 6; k++) { let x = (R() * 2 - 1) * S, y = (R() * 2 - 1) * S, a = R() * 6; g.beginPath(); g.moveTo(x, y); for (let i = 0; i < 6; i++) { a += (R() - 0.5) * 0.6; x += Math.cos(a) * 4; y += Math.sin(a) * 4; g.lineTo(x, y); } g.stroke(); } } },
   { id: "epitelio", n: "Epitélio estratificado pavimentoso não queratinizado", stain: "H&E", disc: "histo", mag: 10, cat: "histo",
     find: "Várias camadas de células: basais cúbicas, intermediárias poligonais e superficiais achatadas; lâmina própria abaixo.", bg: "#f4dbe6",
     draw(g, S, R) { for (let y = -S; y < S; y += 9) { const layer = (y + S) / (2 * S); for (let x = -S; x < S; x += 9 + layer * 8) { const flat = 1 - layer; g.fillStyle = `rgb(${236 - flat * 20},${170 + flat * 20},${205})`; g.beginPath(); g.ellipse(x + R() * 3, y, 4 + layer * 4, 4 - flat * 2.6 + 0.6, 0, 0, 7); g.fill(); g.fillStyle = "#5b2a88"; g.beginPath(); g.ellipse(x + R() * 3, y, 1.6 + layer * 0.6, 1.6 - flat * 0.9 + 0.3, 0, 0, 7); g.fill(); } } g.fillStyle = "rgba(236,150,190,.6)"; g.fillRect(-S, S * 0.7, 2 * S, S); } },
-  { id: "musculo", n: "Músculo estriado esquelético (corte longitudinal)", stain: "H&E", disc: "histo", mag: 40, cat: "histo",
+  { id: "musculo", S: 60, n: "Músculo estriado esquelético (corte longitudinal)", stain: "H&E", disc: "histo", mag: 40, cat: "histo",
     find: "Fibras longas e paralelas com estrias transversais e vários núcleos periféricos.", bg: "#f1cddb",
     draw(g, S, R) { for (let y = -S; y < S; y += 11) { g.fillStyle = "#e58fb0"; g.fillRect(-S, y, 2 * S, 9.5); g.fillStyle = "rgba(150,40,90,.35)"; for (let x = -S; x < S; x += 1.6) g.fillRect(x, y, 0.6, 9.5); g.fillStyle = "#4a1f74"; for (let x = -S + R() * 10; x < S; x += 14 + R() * 10) { g.beginPath(); g.ellipse(x, y + (R() < 0.5 ? 0.9 : 8.6), 2.4, 0.8, 0, 0, 7); g.fill(); } } } },
   { id: "figado", n: "Fígado: lóbulo hepático com veia centrolobular", stain: "H&E", disc: "histo", mag: 10, cat: "histo",
@@ -68,10 +68,10 @@ function micDraw(cv, sl, st) {
   const blur = Math.abs(st.focus - st.ideal) * 0.12 + (need ? 4.5 : 0);
   g.filter = blur > 0.25 ? `blur(${blur.toFixed(1)}px)` : "none";
   g.fillStyle = sl.bg || "#f4e8ea"; g.fillRect(0, 0, W, H);
-  const field = 600 / st.mag; // µm visíveis no diâmetro
+  const field = 1200 / st.mag; // µm visíveis no diâmetro
   const sc = W / field;
   g.translate(W / 2 + st.px * sc, H / 2 + st.py * sc); g.scale(sc, sc);
-  sl.draw(g, 80, mRand(hashStr(sl.id)));
+  sl.draw(g, sl.S || 80, mRand(hashStr(sl.id)));
   g.restore();
   // Iluminação e vinheta
   g.save(); g.beginPath(); g.arc(W / 2, H / 2, W * 0.48, 0, Math.PI * 2); g.clip();
@@ -81,7 +81,7 @@ function micDraw(cv, sl, st) {
   const vg = g.createRadialGradient(W / 2, H / 2, W * 0.3, W / 2, H / 2, W * 0.49); vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,.65)"); g.fillStyle = vg; g.fillRect(0, 0, W, H);
   g.restore();
   // Régua e indicação de aumento
-  g.fillStyle = "rgba(255,255,255,.9)"; g.font = "600 13px Inter, Arial"; g.fillText(`${st.mag}x · ${Math.round(600 / st.mag)} µm`, 12, H - 12);
+  g.fillStyle = "rgba(255,255,255,.9)"; g.font = "600 13px Inter, Arial"; g.fillText(`${st.mag}x · campo de ${Math.round(1200 / st.mag)} µm (ilustrativo)`, 12, H - 12);
 }
 
 // ---------- Cena 3D ----------

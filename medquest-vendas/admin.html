@@ -1,0 +1,58 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800\&family=Inter:wght@400;500;600\&display=swap">
+<link rel="stylesheet" href="css/vendas.css"><link rel="stylesheet" href="css/pages.css">
+<title>Admin MedQuest</title>
+<meta name="robots" content="noindex">
+<header class="top-simple"><div class="wrap"><a class="logo keep-utm" href="index.html"><svg viewBox="0 0 40 44" width="24" height="27" aria-hidden="true"><path d="M20 2 37 8v13c0 10-7.5 18-17 21C10.5 39 3 31 3 21V8z" fill="var(--accent)"/><path d="M20 6 33 10.6V21c0 7.8-5.6 14.2-13 16.8C12.6 35.2 7 28.8 7 21V10.6z" fill="var(--bg)"/><path d="M17 13h6v6h6v6h-6v6h-6v-6h-6v-6h6z" fill="var(--accent)"/></svg><span>MedQuest</span></a></div></header>
+<main class="wrap page">
+  <h1>Preços e links de checkout</h1>
+  <p>Altere os valores sem mexer no código. As mudanças valem na hora para novas visitas e novos checkouts.</p>
+  <div class="card form" id="login"><label>Token de administrador<input id="tok" type="password" autocomplete="current-password"></label><button class="btn" id="enter" type="button">Entrar</button><p class="small" id="lerr"></p></div>
+  <form class="card form" id="f" hidden>
+    <h2>Oferta de boas-vindas</h2>
+    <label class="chk"><input type="checkbox" id="of-on"> Oferta ativa</label>
+    <label>Duração (horas)<input id="of-h" inputmode="numeric"></label>
+    <h2>Plano mensal</h2>
+    <div class="row2"><label>Preço (R$)<input id="m-p" inputmode="decimal"></label><label>Link de checkout<input id="m-l" placeholder="https://"></label></div>
+    <h2>Plano anual</h2>
+    <div class="row2"><label>Preço regular (R$)<input id="a-r" inputmode="decimal"></label><label>Preço de boas-vindas (R$)<input id="a-p" inputmode="decimal"></label></div>
+    <label>Link de checkout regular<input id="a-lr" placeholder="https://"></label>
+    <label>Link de checkout promocional<input id="a-lp" placeholder="https://"></label>
+    <label>Parâmetro do código do pedido<input id="ref"></label>
+    <h2>Preços planejados (não ativos)</h2>
+    <div class="row2"><label>Mensal (R$)<input id="pl-m" inputmode="decimal"></label><label>Anual (R$)<input id="pl-a" inputmode="decimal"></label></div>
+    <label class="chk"><input type="checkbox" id="pl-on"> Ativar os preços planejados</label>
+    <p class="warn" id="pl-warn" hidden>Atenção: com esta opção marcada, o mensal e o anual regular passam a usar os preços planejados. Não ative neste lançamento.</p>
+    <button class="btn" type="submit">Salvar</button>
+    <p class="small" id="saved" role="status"></p>
+    <h2>Resumo</h2><p class="small" id="stats"></p>
+  </form>
+</main>
+<script>
+(function () {
+  let token = "";
+  const $ = (id) => document.getElementById(id);
+  const api = (p, o = {}) => fetch(p, Object.assign({ headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" } }, o)).then((r) => (r.ok ? r.json() : Promise.reject(r.status)));
+  function fill(c) {
+    $("of-on").checked = c.offer.enabled; $("of-h").value = c.offer.durationHours;
+    $("m-p").value = c.monthly.price; $("m-l").value = c.monthly.checkout;
+    $("a-r").value = c.annual.regular; $("a-p").value = c.annual.promo; $("a-lr").value = c.annual.checkoutRegular; $("a-lp").value = c.annual.checkoutPromo;
+    $("ref").value = c.refParam; $("pl-m").value = c.planned.monthly; $("pl-a").value = c.planned.annual; $("pl-on").checked = c.planned.active; $("pl-warn").hidden = !c.planned.active;
+  }
+  async function load() {
+    fill(await api("/api/admin/config"));
+    const s = await api("/api/admin/stats");
+    $("stats").textContent = `${s.visitors} visitantes · ${s.activeOffers} ofertas ativas · ${s.checkouts} checkouts iniciados · ${s.paid} pagos · ${s.flagged} sinalizados · ${s.unmatched} webhooks sem pedido`;
+  }
+  $("enter").onclick = async () => { token = $("tok").value.trim(); try { await load(); $("login").hidden = true; $("f").hidden = false; } catch (e) { $("lerr").textContent = "Token inválido ou servidor indisponível."; } };
+  $("pl-on").onchange = () => ($("pl-warn").hidden = !$("pl-on").checked);
+  $("f").onsubmit = async (e) => {
+    e.preventDefault();
+    const n = (id) => $(id).value.replace(",", ".");
+    const body = { offer: { enabled: $("of-on").checked, durationHours: n("of-h") }, monthly: { price: n("m-p"), checkout: $("m-l").value.trim() }, annual: { regular: n("a-r"), promo: n("a-p"), checkoutRegular: $("a-lr").value.trim(), checkoutPromo: $("a-lp").value.trim() }, planned: { monthly: n("pl-m"), annual: n("pl-a"), active: $("pl-on").checked }, refParam: $("ref").value.trim() };
+    try { fill(await api("/api/admin/config", { method: "PUT", body: JSON.stringify(body) })); $("saved").textContent = "Salvo."; load(); } catch (err) { $("saved").textContent = "Não foi possível salvar. Confira os valores e os links (precisam começar com https://)."; }
+  };
+})();
+</script>

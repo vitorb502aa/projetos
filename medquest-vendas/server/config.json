@@ -1,0 +1,8 @@
+{
+  "currency": "BRL",
+  "offer": { "enabled": true, "durationHours": 24 },
+  "monthly": { "price": 29.9, "checkout": "" },
+  "annual": { "regular": 127, "promo": 97, "checkoutRegular": "", "checkoutPromo": "" },
+  "planned": { "active": false, "monthly": 47, "annual": 197, "note": "Valores futuros planejados. Não ative neste lançamento." },
+  "refParam": "sck"
+}

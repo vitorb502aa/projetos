@@ -1,0 +1,18 @@
+/* Páginas auxiliares (obrigado, admin, políticas) */
+.page { max-width: 760px; margin: 0 auto; padding-block: 48px 80px; display: flex; flex-direction: column; gap: 16px; }
+.page h1 { font-size: clamp(28px, 5vw, 38px); }
+.page h2 { font-size: 20px; margin-top: 18px; }
+.page p, .page li { color: #CBD5E1; }
+.page .card { padding: 22px; border-radius: 18px; background: var(--bg2); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; }
+.status { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
+.status i { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); }
+.status.ok i { background: var(--ok); } .status.wait i { background: #FBBF24; animation: blink 1s infinite; }
+@keyframes blink { 50% { opacity: .3; } }
+.form { display: grid; gap: 12px; }
+.form label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted); }
+.form input { font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line2); border-radius: 10px; padding: 10px 12px; }
+.form .row2 { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+.form .chk { flex-direction: row; align-items: center; gap: 10px; color: var(--fg); }
+.warn { padding: 12px 14px; border-radius: 12px; border: 1px solid #FBBF2455; background: #FBBF2412; color: #FDE68A; font-size: 14px; }
+.top-simple { border-bottom: 1px solid var(--line); }
+.top-simple .wrap { display: flex; align-items: center; min-height: 60px; }
