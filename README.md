@@ -25,6 +25,8 @@ O progresso fica salvo no navegador (localStorage).
 | Parasitologia, Farmacologia, Saúde Coletiva | Reumatologia, Neurologia, Infectologia, Dermatologia |
 | | Psiquiatria, Pediatria, Ginecologia e Obstetrícia, Cirurgia, Urgência & Emergência |
 
+Cada matéria é um mundo com 6 fases e cerca de 70 itens: 20 flashcards, 15 questões, 12 de verdadeiro ou falso, 10 pares, 2 ou 3 quebra-cabeças e 3 casos clínicos (cerca de 1.900 itens no total). A cada partida, a fase sorteia um lote diferente (12 cards, 10 questões, 6 pares). Os flashcards nunca estudados aparecem primeiro.
+
 Cada matéria é um mundo com 6 fases. É preciso ganhar pelo menos 1 ⭐ numa fase para liberar a próxima:
 🃏 Flashcards (revisão espaçada) · ❓ Quiz · ⚡ Verdadeiro ou Falso · 🔗 Ligue os pares ·
 🧩 Quebra-cabeça (montar estruturas e processos na ordem certa) · 👑 Chefão: caso clínico.
@@ -71,7 +73,8 @@ O texto é lido no próprio navegador e vira um mundo com flashcards, quiz, V ou
 
 | Arquivo | Conteúdo |
 |---|---|
-| `js/data.js`, `js/data-extra.js`, `js/data-extra2.js` | Conteúdo das matérias e grade por período |
+| `js/data.js`, `js/data-extra.js`, `js/data-extra2.js` | Conteúdo base das matérias e grade por período |
+| `js/more1.js` … `js/more7.js` | Conteúdo ampliado (formato compacto, via `addContent`) |
 | `js/core.js` | Estado, XP, missões, medalhas, avatar, revisão espaçada |
 | `js/games.js` | Modos de jogo |
 | `js/online.js` | Desafio por código, ranking e batalhas online |

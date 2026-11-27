@@ -11,18 +11,22 @@ function start(wid, key) {
   if (!w) return;
   const base = { worldId: wid, stageKey: key, back: () => go("world", wid), restart: () => start(wid, key), xp: 0, bestCombo: 0, combo: 0 };
   if (key === "flash") {
-    return startFlashRunner(Object.assign(base, { title: `${w.icon} ${w.name} · Flashcards`, queue: shuffle(w.flashcards.map((_, i) => `${w.id}:${i}`)) }));
+    // Até 12 cards por rodada: primeiro os nunca estudados, depois os que vencem antes.
+    const ids = w.flashcards.map((_, i) => `${w.id}:${i}`);
+    const fresh = shuffle(ids.filter((id) => !S.srs[id]));
+    const seen = ids.filter((id) => S.srs[id]).sort((a, b) => S.srs[a].due - S.srs[b].due);
+    return startFlashRunner(Object.assign(base, { title: `${w.icon} ${w.name} · Flashcards`, queue: shuffle(fresh.concat(seen).slice(0, 12)) }));
   }
   if (key === "quiz") {
     return startQRunner(Object.assign(base, {
       title: `${w.icon} ${w.name} · Quiz`, hearts: 3,
-      items: shuffle(w.quiz.map((it, i) => ({ ...it, errKey: `${w.id}:quiz:${i}`, tag: w.name })))
+      items: shuffle(w.quiz.map((it, i) => ({ ...it, errKey: `${w.id}:quiz:${i}`, tag: w.name }))).slice(0, 10)
     }));
   }
   if (key === "tf") {
     G = Object.assign(base, {
       mode: "tf", title: `${w.icon} ${w.name} · Verdadeiro ou Falso`, idx: 0, correct: 0, answered: false,
-      items: shuffle(w.tf.map((it, i) => prepItem({ q: it.s, o: ["Verdadeiro", "Falso"], a: it.v ? 0 : 1, e: it.e, noShuffle: true, errKey: `${w.id}:tf:${i}`, tag: w.name })))
+      items: shuffle(w.tf.map((it, i) => prepItem({ q: it.s, o: ["Verdadeiro", "Falso"], a: it.v ? 0 : 1, e: it.e, noShuffle: true, errKey: `${w.id}:tf:${i}`, tag: w.name }))).slice(0, 10)
     });
     return beginTfItem();
   }
