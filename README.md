@@ -16,23 +16,28 @@ O app fica na pasta `medquest/` e não precisa de instalação.
 
 O progresso fica salvo no navegador (localStorage).
 
-## Matérias
+## Matérias (28)
 
 | Ciclo básico | Ciclo clínico |
 |---|---|
-| Anatomia | Cardiologia |
-| Fisiologia | Neurologia |
-| Bioquímica | Pediatria |
-| Histologia | Endocrinologia |
-| Embriologia | Infectologia |
-| Imunologia | Dermatologia |
-| Microbiologia | Pneumologia |
-| Farmacologia | Patologia |
-| | Urgência & Emergência |
+| Anatomia, Fisiologia, Bioquímica, Histologia | Semiologia, Patologia, Cardiologia, Pneumologia |
+| Embriologia, Genética, Imunologia, Microbiologia | Gastroenterologia, Nefrologia, Endocrinologia, Hematologia |
+| Parasitologia, Farmacologia, Saúde Coletiva | Reumatologia, Neurologia, Infectologia, Dermatologia |
+| | Psiquiatria, Pediatria, Ginecologia e Obstetrícia, Cirurgia, Urgência & Emergência |
 
 Cada matéria é um mundo com 6 fases. É preciso ganhar pelo menos 1 ⭐ numa fase para liberar a próxima:
 🃏 Flashcards (revisão espaçada) · ❓ Quiz · ⚡ Verdadeiro ou Falso · 🔗 Ligue os pares ·
 🧩 Quebra-cabeça (montar estruturas e processos na ordem certa) · 👑 Chefão: caso clínico.
+
+## Meu semestre
+
+Na primeira abertura, o aluno escolhe o período (1º ao 12º). O Mapa abre em **⭐ Meu semestre**, só com as matérias daquele período.
+O Contra o relógio e o simulado também partem dessas matérias.
+
+- A grade padrão (`GRADE_PADRAO`, em `js/data-extra2.js`) segue um currículo típico. Do 9º ao 12º período (internato) entram as grandes áreas clínicas.
+- Cada faculdade é diferente, então o aluno pode marcar e desmarcar matérias em **Editar grade** ou restaurar a grade padrão.
+- Trocar de período não apaga o progresso das matérias anteriores.
+- Em desafios e batalhas, "Meu semestre" vira uma lista fixa de matérias. Assim todos os participantes jogam as mesmas questões, mesmo estando em períodos diferentes.
 
 ## Seu material vira jogo
 
@@ -66,7 +71,7 @@ O texto é lido no próprio navegador e vira um mundo com flashcards, quiz, V ou
 
 | Arquivo | Conteúdo |
 |---|---|
-| `js/data.js`, `js/data-extra.js` | Conteúdo das matérias |
+| `js/data.js`, `js/data-extra.js`, `js/data-extra2.js` | Conteúdo das matérias e grade por período |
 | `js/core.js` | Estado, XP, missões, medalhas, avatar, revisão espaçada |
 | `js/games.js` | Modos de jogo |
 | `js/online.js` | Desafio por código, ranking e batalhas online |

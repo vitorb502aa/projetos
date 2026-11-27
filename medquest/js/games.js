@@ -216,12 +216,14 @@ function nextPuzzle() {
 
 // ---------- Contra o relógio (também usado nos desafios entre amigos) ----------
 function startClock(scope = S.ui.clockScope, seed = newSeed(), challenge = null) {
+  const label = scopeLabel(scope);
+  scope = concreteScope(scope);
   const rand = rng(seed);
   const pool = shuffle(questionPool(scope, ["quiz", "tf"]), rand).map((it) => prepItem(it, rand));
   if (pool.length < 4) return toast("Poucas questões nessa matéria para o modo Contra o relógio.");
   clearTimers();
   G = {
-    mode: "clock", title: `⏱️ Contra o relógio · ${scopeLabel(scope)}`, scope, seed, challenge,
+    mode: "clock", title: `⏱️ Contra o relógio · ${label}`, scope, seed, challenge,
     items: pool, idx: 0, pts: 0, correct: 0, wrongs: 0, combo: 0, bestCombo: 0, xp: 0,
     endAt: Date.now() + CLOCK_SECONDS * 1000, flash: null,
     back: () => go("arena"), restart: () => startClock(scope)
@@ -325,7 +327,7 @@ let LOCAL = null;
 function startLocalBattle() {
   const a = (document.getElementById("lb-a") || {}).value || "Jogador 1";
   const b = (document.getElementById("lb-b") || {}).value || "Jogador 2";
-  const scope = (document.getElementById("lb-scope") || {}).value || "all";
+  const scope = concreteScope((document.getElementById("lb-scope") || {}).value || "all");
   LOCAL = { names: [a.trim() || "Jogador 1", b.trim() || "Jogador 2"], seed: newSeed(), scope, res: [] };
   runLocalTurn();
 }

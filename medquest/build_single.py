@@ -2,7 +2,7 @@
 Uso: python3 medquest/build_single.py saida.html"""
 import pathlib, sys
 root = pathlib.Path(__file__).parent
-scripts = ["data.js", "data-extra.js", "core.js", "online.js", "materials.js", "games.js", "screens.js"]
+scripts = ["data.js", "data-extra.js", "data-extra2.js", "core.js", "online.js", "materials.js", "games.js", "screens.js"]
 css = (root / "css/style.css").read_text()
 js = "\n".join((root / "js" / s).read_text() for s in scripts)
 assert "</script" not in js.lower()

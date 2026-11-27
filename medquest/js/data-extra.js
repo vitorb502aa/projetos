@@ -103,7 +103,7 @@ window.WORLDS.push(
     }]
   },
   {
-    id: "embrio", cycle: "basico", name: "Embriologia", icon: "🧬", color: "#84cc16",
+    id: "embrio", cycle: "basico", name: "Embriologia", icon: "👶", color: "#84cc16",
     desc: "Do zigoto à circulação fetal.",
     flashcards: [
       { f: "Os três folhetos embrionários", b: "Ectoderma, mesoderma e endoderma." },

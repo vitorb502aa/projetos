@@ -574,3 +574,13 @@ button:focus-visible, .opt:focus-visible, input:focus-visible { outline: 3px sol
   .quick { grid-template-columns: repeat(2, 1fr); }
   .lvl-info { max-width: 120px; }
 }
+
+/* Semestre */
+.sem-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 14px 0 6px; }
+.sem-grid button { display: flex; flex-direction: column; align-items: center; padding: 10px 4px; border-radius: 14px; background: var(--bg2); border: 2px solid var(--line); }
+.sem-grid button b { font-size: 18px; }
+.sem-grid button small { font-size: 10px; }
+.sem-grid button.on, .sem-grid button:hover { border-color: var(--primary); }
+.sem-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin: -4px 0 12px; font-size: 14px; color: var(--muted); }
+.sem-bar b { color: var(--text); }
+.sem-chip { display: inline-block; margin: 0 0 8px; cursor: pointer; }

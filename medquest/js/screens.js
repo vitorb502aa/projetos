@@ -3,7 +3,7 @@
 
 const $app = document.getElementById("app");
 let view = { name: "home", arg: null };
-const SIMCFG = { worlds: {}, n: 20, timed: true };
+const SIMCFG = { worlds: {}, n: 20, timed: true, init: false };
 
 function go(name, arg = null) {
   clearTimers();
@@ -14,14 +14,15 @@ function go(name, arg = null) {
 }
 const SCREENS = {
   home: homeScreen, world: worldScreen, arena: arenaScreen, ranking: rankingScreen, battles: battlesScreen, battle: battleScreen,
-  review: reviewScreen, simcfg: simcfgScreen, materials: materialsScreen, profile: profileScreen, avatar: avatarScreen
+  review: reviewScreen, simcfg: simcfgScreen, grade: gradeScreen, materials: materialsScreen, profile: profileScreen, avatar: avatarScreen
 };
-const TAB_OF = { world: "home", ranking: "arena", battles: "arena", battle: "arena", simcfg: "review", avatar: "profile" };
+const TAB_OF = { world: "home", grade: "home", ranking: "arena", battles: "arena", battle: "arena", simcfg: "review", avatar: "profile" };
 function rerender() {
   if (G) return renderGame();
   const fn = SCREENS[view.name] || homeScreen;
   $app.innerHTML = shell(fn(view.arg), TAB_OF[view.name] || view.name);
   if (!S.onboarded) showOnboarding();
+  else if (!S.semAsked) showSemesterPicker();
 }
 // Atualiza a tela quando chegam dados online, sem atrapalhar quem está digitando ou jogando.
 function softRerender() {
@@ -68,7 +69,8 @@ function showOnboarding() {
       <h2>Bem-vindo(a) ao MedQuest!</h2>
       <p>Estude medicina como um jogo, com técnicas de memorização que funcionam.</p>
       <ul class="list">
-        <li>🗺️ <b>17 matérias</b> do ciclo básico e do clínico. Cada uma tem 6 fases, incluindo quebra-cabeças e caso clínico.</li>
+        <li>🎓 <b>Seu período</b>: o app mostra primeiro as matérias do seu semestre.</li>
+        <li>🗺️ <b>${window.WORLDS.length} matérias</b> do ciclo básico, do clínico e do internato, cada uma com 6 fases.</li>
         <li>📚 <b>Seu material vira jogo</b>: envie PDFs, slides, resumos ou anotações.</li>
         <li>⚔️ <b>Arena</b>: Contra o relógio, desafios com amigos, batalhas e ranking semanal.</li>
         <li>🔁 <b>Revisão</b> espaçada, caderno de erros e simulados antes das provas.</li>
@@ -78,7 +80,60 @@ function showOnboarding() {
     </div>`;
   document.body.appendChild(m);
 }
-function closeOnboarding() { S.onboarded = true; save(); document.querySelectorAll(".modal.onboard").forEach((m) => m.remove()); }
+function closeOnboarding() { S.onboarded = true; save(); document.querySelectorAll(".modal.onboard").forEach((m) => m.remove()); if (!S.semAsked) showSemesterPicker(); }
+
+// ---------- Escolha do período ----------
+function showSemesterPicker() {
+  if (document.querySelector(".modal.sem")) return;
+  const m = document.createElement("div");
+  m.className = "modal sem";
+  m.innerHTML = `
+    <div class="modal-card">
+      <div class="big-emoji">🎓</div>
+      <h2>Em que período você está?</h2>
+      <p>O MedQuest mostra primeiro as matérias do seu semestre. Depois você pode ajustar a grade da sua faculdade.</p>
+      <div class="sem-grid">${Array.from({ length: 12 }, (_, i) => i + 1).map((n) => `<button class="${S.semester === n ? "on" : ""}" onclick="setSemester(${n})"><b>${n}º</b><small>${n <= 4 ? "básico" : n <= 8 ? "clínico" : "internato"}</small></button>`).join("")}</div>
+      <button class="btn ghost block" onclick="setSemester(null)">Prefiro ver todas as matérias</button>
+    </div>`;
+  document.body.appendChild(m);
+}
+function setSemester(n) {
+  S.semester = n; S.grade = null; S.semAsked = true;
+  S.ui.cycle = n ? "sem" : "basico";
+  S.ui.clockScope = n ? "sem" : "all";
+  SIMCFG.init = false;
+  save();
+  document.querySelectorAll(".modal.sem").forEach((m) => m.remove());
+  if (n) toast(`🎓 ${esc(semLabel(n))}: ${myGrade().length} matérias no seu semestre`);
+  if (view.name === "grade") rerender(); else go("home");
+}
+function toggleGrade(id) {
+  const g = myGrade().slice();
+  const i = g.indexOf(id);
+  if (i >= 0) g.splice(i, 1); else g.push(id);
+  S.grade = g;
+  if (g.length) { S.ui.cycle = "sem"; } else if (S.ui.cycle === "sem") S.ui.cycle = "basico";
+  save(); rerender();
+}
+function resetGrade() { S.grade = null; save(); toast("Grade padrão restaurada."); rerender(); }
+function gradeScreen() {
+  const mine = myGrade();
+  const custom = !!S.grade;
+  return `
+    <div class="sub-head"><button class="back" onclick="go('home')">‹</button><h1>Meu semestre</h1></div>
+    <div class="panel">
+      <label class="lbl" for="sem-sel">Período</label>
+      <select id="sem-sel" onchange="setSemester(this.value ? +this.value : null)">
+        <option value="" ${!S.semester ? "selected" : ""}>Não definido (ver tudo)</option>
+        ${Array.from({ length: 12 }, (_, i) => i + 1).map((n) => `<option value="${n}" ${S.semester === n ? "selected" : ""}>${esc(semLabel(n))}</option>`).join("")}
+      </select>
+      <p class="muted-txt small">${S.semester ? `A grade abaixo é a de um currículo típico${custom ? ", com os seus ajustes" : ""}. Cada faculdade organiza o curso de um jeito: marque o que você estuda agora.` : "Escolha um período para montar a sua grade."}</p>
+      ${custom && S.semester ? `<button class="btn ghost block" onclick="resetGrade()">Restaurar grade padrão do ${S.semester}º período</button>` : ""}
+    </div>
+    <h2 class="sec">Matérias do semestre <small>${mine.length} selecionada(s)</small></h2>
+    ${CYCLES.map((c) => { const ws = worldsOfCycle(c.id); return ws.length ? `<label class="lbl">${c.icon} ${c.name}</label><div class="filter-chips">${ws.map((w) => `<button class="fchip ${mine.includes(w.id) ? "on" : ""}" onclick="toggleGrade('${w.id}')">${w.icon} ${esc(w.name)}</button>`).join("")}</div>` : ""; }).join("")}
+    <button class="btn primary block" style="margin-top:16px" onclick="S.ui.cycle='sem';go('home')">Ver meu semestre</button>`;
+}
 function showHelp() { S.onboarded = false; showOnboarding(); }
 
 // ---------- Mapa ----------
@@ -100,8 +155,10 @@ function missionsHtml() {
 function homeScreen() {
   const due = dueCards().length;
   const tip = window.STUDY_TIPS[new Date().getDate() % window.STUDY_TIPS.length];
+  if (S.ui.cycle === "sem" && !hasGrade()) S.ui.cycle = "basico";
   const cyc = S.ui.cycle;
-  const worlds = worldsOfCycle(cyc);
+  const worlds = cyc === "sem" ? myGrade().map(worldById) : worldsOfCycle(cyc);
+  const segs = (hasGrade() ? [{ id: "sem", name: "Meu semestre", icon: "⭐" }] : []).concat(CYCLES);
   return `
     ${missionsHtml()}
     <button class="cta ${due ? "" : "muted"}" onclick="go('review')">
@@ -117,8 +174,10 @@ function homeScreen() {
     </div>
     <div class="tip">${esc(tip)}</div>
     <div class="seg">
-      ${CYCLES.map((c) => `<button class="${cyc === c.id ? "on" : ""}" onclick="S.ui.cycle='${c.id}';save();rerender()">${c.icon} ${c.name}</button>`).join("")}
+      ${segs.map((c) => `<button class="${cyc === c.id ? "on" : ""}" onclick="S.ui.cycle='${c.id}';save();rerender()">${c.icon} ${c.name}</button>`).join("")}
     </div>
+    ${cyc === "sem" ? `<div class="sem-bar"><span>🎓 <b>${esc(semLabel())}</b> · ${worlds.length} matérias</span><button class="btn ghost small-btn" onclick="go('grade')">Editar grade</button></div>`
+      : !S.semester ? `<div class="sem-bar"><span>🎓 Mostre só as matérias do seu semestre</span><button class="btn accent small-btn" onclick="showSemesterPicker()">Escolher período</button></div>` : ""}
     ${worlds.length ? `<div class="worlds">${worlds.map((w) => {
       const max = stagesOf(w).length * 3;
       const st = worldStars(w);
@@ -307,6 +366,7 @@ function reviewScreen() {
 }
 
 function simcfgScreen() {
+  if (!SIMCFG.init) { SIMCFG.init = true; if (hasGrade()) { SIMCFG.worlds = {}; myGrade().forEach((id) => { SIMCFG.worlds[id] = true; }); } }
   const picked = Object.keys(SIMCFG.worlds).filter((k) => SIMCFG.worlds[k]);
   const avail = picked.reduce((t, wid) => t + questionPool(wid, ["quiz", "case"]).length, 0);
   const chip = (w) => `<button class="fchip ${SIMCFG.worlds[w.id] ? "on" : ""}" onclick="simToggle('${w.id}')">${w.icon} ${esc(w.name)}</button>`;
@@ -315,6 +375,7 @@ function simcfgScreen() {
     <div class="panel">
       <b>Matérias da prova</b>
       <div class="row wrap">
+        ${hasGrade() ? `<button class="btn ghost small-btn" onclick="simSelect('sem')">⭐ Meu semestre</button>` : ""}
         <button class="btn ghost small-btn" onclick="simSelect('basico')">Todo o básico</button>
         <button class="btn ghost small-btn" onclick="simSelect('clinico')">Todo o clínico</button>
         <button class="btn ghost small-btn" onclick="simSelect('all')">Tudo</button>
@@ -333,7 +394,8 @@ function simcfgScreen() {
 function simToggle(wid) { SIMCFG.worlds[wid] = !SIMCFG.worlds[wid]; rerender(); }
 function simSelect(which) {
   SIMCFG.worlds = {};
-  if (which !== "none") allWorlds().forEach((w) => { if (which === "all" || w.cycle === which) SIMCFG.worlds[w.id] = true; });
+  if (which === "sem") myGrade().forEach((id) => { SIMCFG.worlds[id] = true; });
+  else if (which !== "none") allWorlds().forEach((w) => { if (which === "all" || w.cycle === which) SIMCFG.worlds[w.id] = true; });
   rerender();
 }
 
@@ -421,6 +483,7 @@ function profileScreen() {
       <button class="av-edit" onclick="go('avatar')">${avatarHtml(S.avatar, 96)}<span>✏️ Editar avatar</span></button>
       <h1>${esc(S.nick || "Estudante")}</h1>
       <p>${esc(L.title)} · Nível ${L.lvl} · ${S.xp} XP</p>
+      <button class="chip sem-chip" onclick="go('grade')">🎓 ${esc(semLabel())} · alterar</button>
       <div class="bar"><span style="width:${L.pct}%"></span></div>
       <small>${L.need - L.cur} XP para o nível ${L.lvl + 1}</small>
     </div>

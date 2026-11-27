@@ -22,7 +22,9 @@ function parseChallenge(code) {
     const o = JSON.parse(b64urlDecode(m[1]));
     if (typeof o.s !== "number" || typeof o.p !== "number") return null;
     o.sc = typeof o.sc === "string" ? o.sc : "all";
-    if (o.sc !== "all" && !CYCLES.some((c) => c.id === o.sc) && !worldById(o.sc)) o.sc = "all";
+    const ids = scopeIds(o.sc);
+    if (ids) { const ok = ids.filter((i) => worldById(i)); o.sc = ok.length ? "L:" + ok.join(",") : "all"; }
+    else if (o.sc !== "all" && !CYCLES.some((c) => c.id === o.sc) && !worldById(o.sc)) o.sc = "all";
     o.n = String(o.n || "Amigo(a)").slice(0, 30);
     o.k = +o.k || 0;
     return o;
@@ -175,7 +177,7 @@ function allBattles() {
 function createBattle() {
   if (!ON.db) return toast("Batalhas online só funcionam na versão publicada.");
   if (ON.writeErr) return toast("Você não tem permissão para criar batalhas neste link.");
-  const scope = S.ui.battleScope;
+  const scope = concreteScope(S.ui.battleScope);
   const bid = "b" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
   const seed = newSeed();
   if (battleItems(seed, scope).length < 5) return toast("Poucas questões nessa matéria para uma batalha.");

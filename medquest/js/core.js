@@ -66,6 +66,7 @@ function defaultState() {
     week: { key: null, xp: 0 },
     avatar: { base: 0, skin: 0, bg: 0, acc: 1, frame: 0 },
     nick: "", sims: [], online: { battles: {}, results: {} },
+    semester: null, grade: null, semAsked: false,
     ui: { cycle: "basico", clockScope: "all", battleScope: "all", errTag: "", errSort: "count" },
     sound: true, onboarded: false
   };
@@ -101,9 +102,28 @@ function stageUnlocked(w, key) {
   return i <= 0 || starsOf(w.id, list[i - 1].key) >= 1;
 }
 
+// ---------- Semestre do aluno ----------
+function defaultGrade(sem) {
+  if (!sem) return [];
+  const g = window.GRADE_PADRAO || {};
+  return (sem >= 9 ? g.internato : g[sem]) || [];
+}
+const myGrade = () => (S.grade || defaultGrade(S.semester)).filter((id) => worldById(id));
+const hasGrade = () => myGrade().length > 0;
+const semLabel = (sem = S.semester) => !sem ? "Período não definido" : sem >= 9 ? `${sem}º período · Internato` : `${sem}º período`;
+// "sem" depende de quem joga; para desafios e batalhas, vira uma lista fixa de matérias.
+const concreteScope = (scope) => (scope === "sem" ? "L:" + myGrade().join(",") : scope);
+function scopeIds(scope) {
+  if (scope === "sem") return myGrade();
+  if (typeof scope === "string" && scope.startsWith("L:")) return scope.slice(2).split(",").filter(Boolean);
+  return null;
+}
+
 // Converte o conteúdo dos mundos em perguntas de múltipla escolha.
 function questionPool(scope = "all", kinds = ["quiz", "tf", "case"]) {
-  const worlds = scope === "all" ? allWorlds()
+  const ids = scopeIds(scope);
+  const worlds = ids ? allWorlds().filter((w) => ids.includes(w.id))
+    : scope === "all" ? allWorlds()
     : CYCLES.some((c) => c.id === scope) ? worldsOfCycle(scope)
     : allWorlds().filter((w) => w.id === scope);
   const pool = [];
@@ -121,6 +141,12 @@ function prepItem(it, rand = Math.random) {
 }
 function scopeLabel(scope) {
   if (scope === "all") return "Todas as matérias";
+  const ids = scopeIds(scope);
+  if (ids) {
+    const mine = myGrade();
+    if (ids.length === mine.length && ids.every((i) => mine.includes(i))) return "Meu semestre";
+    return ids.length === 1 && worldById(ids[0]) ? worldById(ids[0]).name : `${ids.length} matérias`;
+  }
   const c = CYCLES.find((x) => x.id === scope);
   if (c) return c.name;
   const w = worldById(scope);
@@ -128,7 +154,7 @@ function scopeLabel(scope) {
 }
 function scopeOptions(selected) {
   const opt = (v, l) => `<option value="${esc(v)}" ${v === selected ? "selected" : ""}>${esc(l)}</option>`;
-  let h = opt("all", "🌐 Todas as matérias") + opt("basico", "📘 Ciclo básico") + opt("clinico", "🩺 Ciclo clínico");
+  let h = (hasGrade() ? opt("sem", `⭐ Meu semestre (${semLabel()})`) : "") + opt("all", "🌐 Todas as matérias") + opt("basico", "📘 Ciclo básico") + opt("clinico", "🩺 Ciclo clínico");
   CYCLES.forEach((c) => {
     const ws = worldsOfCycle(c.id).filter((w) => questionPool(w.id).length);
     if (ws.length) h += `<optgroup label="${esc(c.name)}">${ws.map((w) => opt(w.id, `${w.icon} ${w.name}`)).join("")}</optgroup>`;
