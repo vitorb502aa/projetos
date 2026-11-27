@@ -41,6 +41,34 @@ O Contra o relógio e o simulado também partem dessas matérias.
 - Trocar de período não apaga o progresso das matérias anteriores.
 - Em desafios e batalhas, "Meu semestre" vira uma lista fixa de matérias. Assim todos os participantes jogam as mesmas questões, mesmo estando em períodos diferentes.
 
+## MedQuest Lab (simulações)
+
+A aba **Lab** reúne simulações práticas gamificadas, integradas ao XP, às missões, às medalhas e à revisão espaçada.
+
+| Experiência | O que o estudante faz |
+|---|---|
+| 🫀 **Anatomia interativa 3D** | 10 sistemas e ~70 estruturas. Gira, aproxima, ajusta camadas (pele e músculos), isola estruturas e liga ou desliga sistemas. Modos: estudo livre, avaliação sem nomes, Localize a estrutura, Qual é essa estrutura?, Monte o sistema e Desafio anatômico. |
+| 🔎 **Encontre o erro** | 7 ambientes 3D (centro cirúrgico, enfermaria, laboratório, pronto-socorro, UTI, consultório e sala de procedimentos). Inspeciona objetos e pessoas e aponta erros de biossegurança e segurança do paciente. Os erros são sorteados a cada partida. |
+| 🏥 **Plantão virtual** | 7 pacientes fictícios (cardio, pneumo, neuro, pediatria, gastro, endócrino e infecto). Anamnese, sinais vitais, exame físico, exames, hipótese e conduta, com relatório do raciocínio esperado. |
+| 🛠️ **Instrumentos cirúrgicos 3D** | 17 instrumentos sobre a mesa. Encontrar, nomear, associar à finalidade, montar a mesa por tempos cirúrgicos e checklist de cirurgia segura da OMS. |
+| 📋 **Estações OSCE** | 8 estações com tempo e checklist: anamnese, semiologia, comunicação (SPIKES), biossegurança, gasometria, choque, raciocínio clínico e anatomia aplicada. |
+
+- **Níveis:** iniciante, intermediário e avançado mudam a complexidade, não só o tempo (pistas, opções, distratores, limite de ações, justificativa).
+- **Resultado:** pontos, % de acerto, tempo, XP, erros explicados, conteúdos recomendados, revisar erros, jogar de novo e próximo desafio.
+- **Erros:** viram flashcards na Revisão do dia e questões no Caderno de erros. Os pontos fracos influenciam as recomendações.
+- **Gamificação do Lab:** missões semanais, medalhas próprias (Anatomista Expert, Detetive Clínico, Investigador Diagnóstico, Especialista em Biossegurança, Mestre da Farmacologia, Explorador Microscópico e outras) e recompensa por domínio de disciplina.
+- **3D:** Three.js r128, carregado só ao abrir uma simulação 3D, com controles próprios de toque, mouse e teclado. Há um **modo leve 2D** automático (sem WebGL) ou manual.
+- **Modelos:** esquemáticos, montados em código. Para uso com assinantes, substituir por modelos GLB/glTF licenciados e validados.
+- **Conteúdo expansível:** cada simulação é um registro em `labRegister` (disciplina, categoria, níveis, objetivo, recursos, respostas, explicações, referências, estado de revisão, pontuação e XP).
+- **Área de conteúdo:** valida os dados, registra a revisão médica e importa estações OSCE, casos do plantão e cenários de Encontre o erro em JSON. O **modo produção** mostra só o que foi revisado. Nesta versão, sem servidor, isso fica salvo no navegador.
+- **Em breve (bloqueado):** laboratório virtual (microscópio), investigação diagnóstica por imagem, desafios de farmacologia e simulador cirúrgico completo.
+
+> As simulações são educacionais e complementares. Não substituem aulas práticas, treinamento supervisionado nem orientação médica. Todo o conteúdo está marcado como "revisão pendente" até ser revisado por profissionais.
+
+## Computador e celular
+
+O layout se adapta: no celular, abas embaixo e o painel da simulação abaixo da cena; no computador (a partir de 960 px), menu lateral, grades maiores e cena 3D com o painel ao lado.
+
 ## Seu material vira jogo
 
 Na aba **Materiais**, envie PDFs de aulas, slides (.pptx), resumos, anotações (.docx, .txt, .md) ou apostilas.
@@ -80,6 +108,9 @@ O texto é lido no próprio navegador e vira um mundo com flashcards, quiz, V ou
 | `js/online.js` | Desafio por código, ranking e batalhas online |
 | `js/materials.js` | Leitura de arquivos e geração de jogos |
 | `js/screens.js` | Telas e navegação |
+| `js/lab/lab-3d.js` | Motor 3D (câmera, toque, seleção, etiquetas) |
+| `js/lab/lab-core.js` | Catálogo, progresso, missões semanais, resultados e área de conteúdo |
+| `js/lab/lab-anatomy.js`, `lab-error.js`, `lab-instruments.js`, `lab-ward.js`, `lab-osce.js` | As 5 experiências |
 
 Para criar uma matéria, copie um objeto de `WORLDS` e preencha `flashcards`, `quiz`, `tf`, `pairs`, `seq` e `cases`.
 

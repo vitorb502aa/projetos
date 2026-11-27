@@ -6,6 +6,9 @@ let view = { name: "home", arg: null };
 const SIMCFG = { worlds: {}, n: 20, timed: true, init: false };
 
 function go(name, arg = null) {
+  if (typeof labCleanup === "function") labCleanup();
+  if (typeof LABCTX !== "undefined") LABCTX = null;
+  document.querySelectorAll(".modal.lab-open,.modal.lab-help,.modal.lab-pause").forEach((m) => m.remove());
   clearTimers();
   G = null;
   view = { name, arg };
@@ -14,9 +17,9 @@ function go(name, arg = null) {
 }
 const SCREENS = {
   home: homeScreen, world: worldScreen, arena: arenaScreen, ranking: rankingScreen, battles: battlesScreen, battle: battleScreen,
-  review: reviewScreen, simcfg: simcfgScreen, grade: gradeScreen, materials: materialsScreen, profile: profileScreen, avatar: avatarScreen
+  review: reviewScreen, simcfg: simcfgScreen, grade: gradeScreen, lab: labScreen, labadmin: labAdminScreen, materials: materialsScreen, profile: profileScreen, avatar: avatarScreen
 };
-const TAB_OF = { world: "home", grade: "home", ranking: "arena", battles: "arena", battle: "arena", simcfg: "review", avatar: "profile" };
+const TAB_OF = { world: "home", grade: "home", labadmin: "lab", ranking: "arena", battles: "arena", battle: "arena", simcfg: "review", avatar: "profile" };
 function rerender() {
   if (G) return renderGame();
   const fn = SCREENS[view.name] || homeScreen;
@@ -36,7 +39,7 @@ function shell(content, tab) {
   const L = levelInfo();
   const d = Math.min(dayVal("xp"), DAILY_GOAL);
   const due = dueCards().length;
-  const tabs = [["home", "🗺️", "Mapa"], ["arena", "⚔️", "Arena"], ["review", "🔁", "Revisão"], ["materials", "📚", "Materiais"], ["profile", "👤", "Perfil"]];
+  const tabs = [["home", "🗺️", "Mapa"], ["lab", "🧪", "Lab"], ["arena", "⚔️", "Arena"], ["review", "🔁", "Revisão"], ["materials", "📚", "Materiais"], ["profile", "👤", "Perfil"]];
   return `
     <header class="topbar">
       <div class="lvl" onclick="go('profile')">
@@ -54,7 +57,7 @@ function shell(content, tab) {
     </header>
     <span id="pomo-mini" class="pomo-mini">${P.running ? `🍅 ${pomoText()}` : ""}</span>
     <main class="content">${content}</main>
-    <nav class="tabbar">
+    <nav class="tabbar"><div class="brand">🩺 MedQuest</div>
       ${tabs.map(([k, i, l]) => `<button class="${tab === k ? "on" : ""}" onclick="go('${k}')"><span class="ti">${i}${k === "review" && due ? `<b class="dot">${due > 99 ? "99+" : due}</b>` : ""}</span><span>${l}</span></button>`).join("")}
     </nav>`;
 }
@@ -72,6 +75,7 @@ function showOnboarding() {
         <li>🎓 <b>Seu período</b>: o app mostra primeiro as matérias do seu semestre.</li>
         <li>🗺️ <b>${window.WORLDS.length} matérias</b> do ciclo básico, do clínico e do internato, cada uma com 6 fases.</li>
         <li>📚 <b>Seu material vira jogo</b>: envie PDFs, slides, resumos ou anotações.</li>
+        <li>🧪 <b>MedQuest Lab</b>: anatomia em 3D, Encontre o erro, Plantão virtual, instrumentos cirúrgicos e OSCE.</li>
         <li>⚔️ <b>Arena</b>: Contra o relógio, desafios com amigos, batalhas e ranking semanal.</li>
         <li>🔁 <b>Revisão</b> espaçada, caderno de erros e simulados antes das provas.</li>
         <li>🎯 Missões diárias, medalhas, avatar e XP.</li>
@@ -167,6 +171,7 @@ function homeScreen() {
       <span class="cta-go">›</span>
     </button>
     <div class="quick">
+      <button onclick="go('lab')"><span>🧪</span>MedQuest Lab</button>
       <button onclick="startClock()"><span>⏱️</span>Contra o relógio</button>
       <button onclick="startPuzzleArcade()"><span>🧩</span>Quebra-cabeças</button>
       <button onclick="go('simcfg')"><span>📝</span>Simulado</button>
@@ -560,6 +565,7 @@ function resetAll() {
 // ---------- Início ----------
 if (S.lastDay && S.lastDay !== today() && S.lastDay !== yesterday()) { S.streak = 0; save(); }
 ensureDay();
+labLoadCustom();
 checkMedals();
 rerender();
 setTimeout(initOnline, 0);

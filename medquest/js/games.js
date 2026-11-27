@@ -473,6 +473,11 @@ function finish(res) {
     if (stars === 3) bump("perfect");
     if (g.stageKey === "boss" && stars) S.stats.bosses++;
     bonus = stars * 10 + (g.stageKey === "boss" && stars ? 40 : 0);
+    const w = worldById(g.worldId);
+    if (w && !S.mastery[w.id] && stagesOf(w).every((st) => starsOf(w.id, st.key) >= 3)) {
+      S.mastery[w.id] = Date.now(); bonus += 100;
+      toast(`🏆 Domínio de <b>${esc(w.name)}</b>! +100 XP`, "gold");
+    }
   }
   if (g.errorsMode) bonus = res.correct * 3;
   g.xp += bonus; addXp(bonus);
